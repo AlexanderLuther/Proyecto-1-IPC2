@@ -4,6 +4,7 @@ import Backend.CambiadorPaneles;
 import Backend.ManejadorDBSM;
 import Backend.Tarifa;
 import java.sql.ResultSet;
+import javax.swing.JPanel;
 /**
  *
  * @author helmuthluther
@@ -51,7 +52,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
        cambiarPanel.cambiarPanel(panelPrincipal, panelInicio);
    }
 
-    @SuppressWarnings("unchecked")
+   @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
@@ -89,9 +90,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
         botonUsuario = new rojerusan.RSButtonIconI();
         botonReportes = new rojerusan.RSButtonIconI();
         botonRuta = new rojerusan.RSButtonIconI();
-        jLabel3 = new javax.swing.JLabel();
         botonTarifa = new rojerusan.RSButtonIconI();
-        botonPuntoControl = new rojerusan.RSButtonIconI();
         etiquetaNuevo = new javax.swing.JLabel();
         panelMas = new javax.swing.JPanel();
         botonHome = new rojerusan.RSButtonIconI();
@@ -470,10 +469,6 @@ public class PanelAdministrador extends javax.swing.JPanel {
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("Bitstream Charter", 1, 15)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("NUEVO");
-
         botonTarifa.setBackground(new java.awt.Color(204, 204, 204));
         botonTarifa.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/tarifa.png"))); // NOI18N
         botonTarifa.setText("TARIFA");
@@ -487,32 +482,14 @@ public class PanelAdministrador extends javax.swing.JPanel {
             }
         });
 
-        botonPuntoControl.setBackground(new java.awt.Color(204, 204, 204));
-        botonPuntoControl.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/punto-de-control.png"))); // NOI18N
-        botonPuntoControl.setText("PUNTO DE CONTROL   ");
-        botonPuntoControl.setBorderPainted(false);
-        botonPuntoControl.setColorHover(new java.awt.Color(51, 153, 0));
-        botonPuntoControl.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        botonPuntoControl.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonPuntoControlActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panelNuevoLayout = new javax.swing.GroupLayout(panelNuevo);
         panelNuevo.setLayout(panelNuevoLayout);
         panelNuevoLayout.setHorizontalGroup(
             panelNuevoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(botonUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+            .addComponent(botonUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
             .addComponent(botonRuta, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(botonReportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(botonPuntoControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(botonTarifa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(panelNuevoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(panelNuevoLayout.createSequentialGroup()
-                    .addGap(107, 107, 107)
-                    .addComponent(jLabel3)
-                    .addContainerGap(110, Short.MAX_VALUE)))
         );
         panelNuevoLayout.setVerticalGroup(
             panelNuevoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -521,18 +498,11 @@ public class PanelAdministrador extends javax.swing.JPanel {
                 .addComponent(botonUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(botonRuta, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
-                .addComponent(botonPuntoControl, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(7, 7, 7)
+                .addGap(5, 5, 5)
                 .addComponent(botonTarifa, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(5, 5, 5)
                 .addComponent(botonReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(panelNuevoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(panelNuevoLayout.createSequentialGroup()
-                    .addGap(97, 97, 97)
-                    .addComponent(jLabel3)
-                    .addContainerGap(230, Short.MAX_VALUE)))
+                .addGap(10, 10, 10))
         );
 
         etiquetaNuevo.setFont(new java.awt.Font("Bitstream Charter", 1, 18)); // NOI18N
@@ -556,7 +526,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
 
         botonCambiarUsuario.setBackground(new java.awt.Color(204, 204, 204));
         botonCambiarUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/cambiar-de-usuario.png"))); // NOI18N
-        botonCambiarUsuario.setText("CAMBIAR USUARIO      ");
+        botonCambiarUsuario.setText("   --     CAMBIAR USUARIO      ");
         botonCambiarUsuario.setBorderPainted(false);
         botonCambiarUsuario.setColorHover(new java.awt.Color(51, 153, 0));
         botonCambiarUsuario.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -602,9 +572,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
                 .addGroup(panelMasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(botonAcecaDe, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(botonCambiarUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelMasLayout.createSequentialGroup()
-                        .addComponent(botonSalir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                    .addComponent(botonSalir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelMasLayout.setVerticalGroup(
@@ -628,7 +596,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
         panelMenu.setLayout(panelMenuLayout);
         panelMenuLayout.setHorizontalGroup(
             panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+            .addComponent(panelNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
             .addGroup(panelMenuLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -643,7 +611,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
                 .addGap(25, 25, 25)
                 .addComponent(etiquetaNuevo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(25, 25, 25)
                 .addComponent(etiquetaMas)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -689,7 +657,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGap(0, 229, Short.MAX_VALUE)
             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel7Layout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
@@ -700,14 +668,14 @@ public class PanelAdministrador extends javax.swing.JPanel {
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 96, Short.MAX_VALUE)
+            .addGap(0, 65, Short.MAX_VALUE)
             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel7Layout.createSequentialGroup()
-                    .addGap(0, 15, Short.MAX_VALUE)
+                    .addGap(0, 0, Short.MAX_VALUE)
                     .addComponent(titulo1)
                     .addGap(7, 7, 7)
                     .addComponent(etiquetaUsuario)
-                    .addGap(0, 16, Short.MAX_VALUE)))
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -723,7 +691,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
         panelPrincipalAdministrador.setLayout(panelPrincipalAdministradorLayout);
         panelPrincipalAdministradorLayout.setHorizontalGroup(
             panelPrincipalAdministradorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelEncabezado, javax.swing.GroupLayout.DEFAULT_SIZE, 1015, Short.MAX_VALUE)
+            .addComponent(panelEncabezado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(panelPrincipalAdministradorLayout.createSequentialGroup()
                 .addComponent(panelMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -760,6 +728,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
     las primeras 45 rutas.
     */
     private void botonRutaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRutaActionPerformed
+        panelRuta.reestructurarPanelRuta();
         panelRuta.obtenerRutas(0);
         panelRuta.inicializarCasillasSeleccion();
         cambiarPanel.cambiarPanel(panelPrincipal, panelRuta);
@@ -777,10 +746,6 @@ public class PanelAdministrador extends javax.swing.JPanel {
         textoCuotaPriorizacion.setText(String.valueOf(tarifa.getCuotaPriorizacionGlobal()));
         ReceptorTarifas.setVisible(true);
     }//GEN-LAST:event_botonTarifaActionPerformed
-
-    private void botonPuntoControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonPuntoControlActionPerformed
-
-    }//GEN-LAST:event_botonPuntoControlActionPerformed
 
     //Metodo encargado de mostrar la informacion del desarrollador
     private void botonAcecaDeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAcecaDeActionPerformed
@@ -849,7 +814,6 @@ public class PanelAdministrador extends javax.swing.JPanel {
     private rojerusan.RSButtonIconI botonCambiarUsuario;
     private rojerusan.RSButtonIconI botonCancelarTarifa;
     private rojerusan.RSButtonIconI botonHome;
-    private rojerusan.RSButtonIconI botonPuntoControl;
     private rojerusan.RSButtonIconI botonReportes;
     private rojerusan.RSButtonIconI botonRuta;
     private rojerusan.RSButtonIconI botonSalir;
@@ -871,7 +835,6 @@ public class PanelAdministrador extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel2;

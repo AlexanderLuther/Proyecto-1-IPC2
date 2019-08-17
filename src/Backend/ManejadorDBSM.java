@@ -39,6 +39,7 @@ public class ManejadorDBSM {
     private Tarifa tarifa;
     private String codigoRuta;  
     private Ruta ruta;
+    private PuntoDeControl puntoDeControl;
     /*
     Metodo encargado de establecer la conexion con la Base de Datos.
     */
@@ -116,6 +117,24 @@ public class ManejadorDBSM {
                 }
                 return listadoAcotado;
             }
+        }
+        return listado;
+    }
+    
+    
+    public List obtenerListadoPuntosDeControl(String codigoSQL){
+        try {
+            this.conectarDB();
+            listado = new ArrayList<>();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                puntoDeControl = new PuntoDeControl(resultado.getInt("Codigo"), resultado.getString("CodigoRuta"), resultado.getString("Nombre"), resultado.getDouble("TarifaOperacion"),
+                resultado.getInt("CantidadPaquetesCola"), resultado.getString("OperadorAsignado"), resultado.getBoolean("UltimoPuntoDeControl"), resultado.getBoolean("TarifaOperacionPropia"));
+                listado.add(puntoDeControl);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
         }
         return listado;
     }
@@ -398,7 +417,7 @@ public class ManejadorDBSM {
     
       //-------------------------------------------------------------PUNTO DE CONTROL----------------------------------------------------------------------------------------------------------
     
-        /*
+    /*
     Metodo encargado de crear un nuevo registro en la base de datos correspondiente a una nueva ruta.
     */
     public String crearNuevoPuntoDeControl(PuntoDeControl puntoDeControl){
@@ -427,6 +446,44 @@ public class ManejadorDBSM {
         }
     }
     
+        /*
+    Metodo encargado de actualizar un registro en la base de datos correspondiente a una ruta.
+    */
+    public boolean consultarModificacionPuntoDeControl(Ruta ruta, PuntoDeControl puntodeControl , int tipo){
+        try {
+            this.conectarDB();
+            if(tipo == 0){
+                declaracion = conexion.createStatement();
+                resultado = declaracion.executeQuery("SELECT COUNT(*) FROM PaqueteAsignadoRuta WHERE CodigoRuta = '"+ruta.getCodigo()+"' && EnDestino = FALSE;");
+                while(resultado.next()){
+                    return resultado.getInt("COUNT(*)") == 0;
+                }
+            }
+            else{
+                declaracion = conexion.createStatement();
+                resultado = declaracion.executeQuery("SELECT COUNT(*) FROM PaquetePasaPuntoDeControl WHERE CodigoRuta = '"+ruta.getCodigo()+"' && CodigoPuntoDeControl = '"+puntodeControl.getCodigo()+"' && EnTurno = TRUE;");
+                while(resultado.next()){
+                    return resultado.getInt("COUNT(*)") == 0;
+                }
+            }
+        }    
+        catch (SQLException ex) {
+            System.out.println(ex.toString());
+        }
+        return true;
+    }
+    
+    public String eliminarPuntoDeControl(PuntoDeControl puntodeControl){
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            declaracion.executeUpdate("DELETE FROM PuntoDeControl WHERE CodigoRuta = '"+puntodeControl.getCodigoRuta()+"' && Codigo = '"+puntodeControl.getCodigo()+"';");
+        }    
+        catch (SQLException ex) {
+            System.out.println(ex.toString());
+        }
+        return "Punto de control eliminado exitosamente";
+    }
 }
 
 

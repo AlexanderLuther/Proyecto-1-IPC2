@@ -20,6 +20,7 @@ public class PanelRuta extends javax.swing.JPanel {
     private ManejadorDBSM manejadorDB;
     private ManejadorBusqueda manejadorBusqueda;
     private ManejadorCodigo manejadorCodigo;
+    private PanelPuntoDeControl panelPuntoDeControl;
     private CambiadorPaneles cambiarPanel;
     private List<Ruta> listadoRutas;
     private ObservableList<Ruta> observableListRutas;
@@ -40,11 +41,13 @@ public class PanelRuta extends javax.swing.JPanel {
     private String patronBusqueda;
     private String mensaje;
     
+    
     //Constructor de la clase
     public PanelRuta() {
         this.manejadorDB = new ManejadorDBSM();
         this.manejadorBusqueda = new ManejadorBusqueda();
         this.manejadorCodigo = new ManejadorCodigo();
+        this.panelPuntoDeControl = new PanelPuntoDeControl(this);
         this.cambiarPanel = new CambiadorPaneles();
         this.listadoRutas = new ArrayList<>();
         this.observableListRutas = ObservableCollections.observableList(listadoRutas);
@@ -269,7 +272,17 @@ public class PanelRuta extends javax.swing.JPanel {
             this.establecerFiltroDeBusquedaRutas();
         }
     }
-     
+    
+    /*
+    Metodo encargado de remover el panelPuntoDeControl y hacer visibles todos los componenes del panelRuta
+    */
+    public void reestructurarPanelRuta(){
+        this.remove(panelPuntoDeControl);
+        for(int i = 0; i < this.getComponentCount(); i++){
+            this.getComponent(i).setVisible(true);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -354,15 +367,12 @@ public class PanelRuta extends javax.swing.JPanel {
         radioBotonEstado = new javax.swing.JRadioButton();
         radioBotonNombre = new javax.swing.JRadioButton();
         etiquetaAlertaTablaRutas = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
         textoBusquedaRutas = new rojeru_san.RSMTextFull();
 
         CrearModificarRuta.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         CrearModificarRuta.setTitle("Creacion De Usuario Administrador");
-        CrearModificarRuta.setMaximumSize(new java.awt.Dimension(701, 490));
         CrearModificarRuta.setMinimumSize(new java.awt.Dimension(701, 490));
         CrearModificarRuta.setModal(true);
-        CrearModificarRuta.setPreferredSize(new java.awt.Dimension(701, 490));
         CrearModificarRuta.setResizable(false);
 
         jPanel3.setBackground(new java.awt.Color(204, 204, 204));
@@ -585,9 +595,7 @@ public class PanelRuta extends javax.swing.JPanel {
 
         MostradorMensajes.setTitle("Mensaje");
         MostradorMensajes.setBackground(new java.awt.Color(204, 204, 204));
-        MostradorMensajes.setMaximumSize(new java.awt.Dimension(660, 200));
         MostradorMensajes.setMinimumSize(new java.awt.Dimension(660, 200));
-        MostradorMensajes.setPreferredSize(new java.awt.Dimension(660, 200));
         MostradorMensajes.setResizable(false);
 
         jPanel7.setBackground(new java.awt.Color(51, 153, 0));
@@ -673,10 +681,8 @@ public class PanelRuta extends javax.swing.JPanel {
 
         CreardorPuntoDeControl.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         CreardorPuntoDeControl.setTitle("Creacion De Punto de Control");
-        CreardorPuntoDeControl.setMaximumSize(new java.awt.Dimension(730, 570));
         CreardorPuntoDeControl.setMinimumSize(new java.awt.Dimension(730, 570));
         CreardorPuntoDeControl.setModal(true);
-        CreardorPuntoDeControl.setPreferredSize(new java.awt.Dimension(730, 570));
         CreardorPuntoDeControl.setResizable(false);
         CreardorPuntoDeControl.getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -848,9 +854,10 @@ public class PanelRuta extends javax.swing.JPanel {
                         .addGap(10, 10, 10))
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(textoOperadorAsignado, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(botonSeleccionarOperador, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(botonSeleccionarOperador, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(textoOperadorAsignado, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(etiquetaAlertaPuntoDeControl, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -946,10 +953,8 @@ public class PanelRuta extends javax.swing.JPanel {
         MostrarOperadores.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         MostrarOperadores.setTitle("Seleccione un Operador");
         MostrarOperadores.setBackground(new java.awt.Color(204, 204, 204));
-        MostrarOperadores.setMaximumSize(new java.awt.Dimension(955, 620));
         MostrarOperadores.setMinimumSize(new java.awt.Dimension(955, 620));
         MostrarOperadores.setModal(true);
-        MostrarOperadores.setPreferredSize(new java.awt.Dimension(955, 620));
         MostrarOperadores.setResizable(false);
 
         tablaOperadores.setSelectionBackground(new java.awt.Color(0, 153, 0));
@@ -1368,11 +1373,6 @@ public class PanelRuta extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(6, 38, 0, 0);
         add(etiquetaAlertaTablaRutas, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(jSeparator1, gridBagConstraints);
 
         textoBusquedaRutas.setForeground(new java.awt.Color(0, 102, 153));
         textoBusquedaRutas.setBordeColorFocus(new java.awt.Color(51, 153, 0));
@@ -1397,8 +1397,24 @@ public class PanelRuta extends javax.swing.JPanel {
         bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
     
+    /*
+    Metodo encargado de ocultar los elementos que se encuentran actualmente en el PanelRuta. Posteriormente
+    agrega al PanelRuta el panel panelPuntoDeControl y lo hace visible.
+    */
     private void botonVerPuntosDeControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonVerPuntosDeControlActionPerformed
-        //cambiarPanel.cambiarPanel(this, panelPuntoDeControl);
+        if(this.tablaRutas.getSelectedRow() == -1){
+            etiquetaAlertaTablaRutas.setText("Seleccione una ruta");
+        }
+        else{
+            for(int i = 0; i < this.getComponentCount(); i++){
+               this.getComponent(i).setVisible(false);
+            }
+            this.add(panelPuntoDeControl);
+            ruta = listadoRutas.get(this.tablaRutas.getSelectedRow());
+            panelPuntoDeControl.obtenerPuntosDeControl(ruta.getCodigo());
+            panelPuntoDeControl.establecerInformacionRuta(ruta);
+            panelPuntoDeControl.setVisible(true);
+        }
     }//GEN-LAST:event_botonVerPuntosDeControlActionPerformed
     /*
     Metodo encargado de limitar la cantidad de caracteres que se pueden ingresar en un campo de texto    
@@ -1767,7 +1783,6 @@ public class PanelRuta extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JRadioButton radioBotonDestino;
     private javax.swing.JRadioButton radioBotonEstado;
     private javax.swing.JRadioButton radioBotonNombre;
