@@ -27,6 +27,11 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     private String mensaje;
     private String patronBusqueda;
     private String operadorAsignado;
+    private String nombrePuntoDeControl;
+    private int cantidadPaquetesCola;
+    private double tarifaOperacion;
+    private boolean tarifaOperacionPropia;
+    private int codigoUltimoPuntoControl;
     
     //Constructor de la clase.
     public PanelPuntoDeControl(PanelRuta panelRuta) {
@@ -135,14 +140,27 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
         alertaTabla.setText("");
     }
     
+    /*
+    Metodo encargado de inicializar y mostrar el JDialog CrearPuntoDeControl
+    */
     public void inicializarCreadorModificadorPuntoDeControl(int tipo){
         if(tipo == 0){
-        
+            textoNombrePuntoControl.setText("");
+            textoCantidadPaquetesCola.setText("");
+            textoTarifaOperacion.setText("");
+            textoOperadorAsignado.setText("");
+            etiquetaAlertaPuntoDeControl.setText("");
+            CreardorPuntoDeControl.setTitle("Nuevo Punto de Control");
+            botonAceptar.setText("CREAR");
+            botonAceptar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/rutaColor.png")));
         }
         else{
-        
+            CreardorPuntoDeControl.setTitle("Modificar Punto de Control");
+            botonAceptar.setText("MODIFICAR");
+            botonAceptar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/editar.png")));
         }
-    
+        CreardorPuntoDeControl.setLocationRelativeTo(this);
+        CreardorPuntoDeControl.setVisible(true);
     }
     
     @SuppressWarnings("unchecked")
@@ -896,9 +914,8 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
                         .addGap(38, 38, 38)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(alertaTabla, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 921, Short.MAX_VALUE)))
+                            .addComponent(alertaTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 921, Short.MAX_VALUE))
                         .addGap(28, 28, 28)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(36, Short.MAX_VALUE))
@@ -930,16 +947,23 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
 
         bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
-
+    /*
+    Metodo encargado realizar validaciones, si se recibe un true se llama al metodo inicializarCreadorModificador
+    PuntoDeControl enviando como parametro un 0, indicando que se trata de un nuevo punto de control.
+    */
     private void botonAgregarPuntoDeControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAgregarPuntoDeControlActionPerformed
         if(manejadorDB.consultarModificacionPuntoDeControl(ruta, puntoDeControl, 0)){
-            CreardorPuntoDeControl.setVisible(true);
+            this.inicializarCreadorModificadorPuntoDeControl(0);
         }
         else{
             alertaTabla.setText("No se puede agregar un nuevo punto de control. Hay paquetes actualmente en la ruta");
         }
     }//GEN-LAST:event_botonAgregarPuntoDeControlActionPerformed
-
+    /*
+    Metodo encargado realizar validaciones, si se recibe un true se llama al metodo inicializarCreadorModificador
+    PuntoDeControl enviando como parametro un 1, indicando que se trata de una modificacion de un punto de control.
+    Ademas se recuperan los datos del punto de control seleccionado y se imprimen en los campos de texto.
+    */
     private void botonModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarActionPerformed
         if(this.tablaPuntosDeControl.getSelectedRow() == -1){
             alertaTabla.setText("Seleccione el punto de control a modificar");
@@ -947,7 +971,16 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
         else{
             puntoDeControl = listadoPuntosDeControl.get(tablaPuntosDeControl.getSelectedRow());
             if(manejadorDB.consultarModificacionPuntoDeControl(ruta, puntoDeControl, 1)){
-                CreardorPuntoDeControl.setVisible(true);
+                textoNombrePuntoControl.setText(puntoDeControl.getNombre());
+                textoCantidadPaquetesCola.setText(String.valueOf(puntoDeControl.getCantidadPaquetesCola()));
+                textoOperadorAsignado.setText(puntoDeControl.getOperadorAsignado());
+                if(puntoDeControl.isTarifaOperacionPropia()){
+                    textoTarifaOperacion.setText(String.valueOf(puntoDeControl.getTarifaOperacion()));
+                }
+                else{
+                    textoTarifaOperacion.setText("");
+                }
+                this.inicializarCreadorModificadorPuntoDeControl(1);
             }
             else{
                 alertaTabla.setText("No se puede modificar. Hay paquetes actualmente en punto de control");
@@ -999,7 +1032,9 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             etiquetaAlertaPuntoDeControl.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombre");
         }
     }//GEN-LAST:event_textoNombrePuntoControlKeyTyped
-
+   /*
+    Metodo encargado de inicializar la tabla de operadores y mostrar el JDialog MostrarOperadores
+    */
     private void botonSeleccionarOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSeleccionarOperadorActionPerformed
         this.limpiarEtiquetasDeAlerta();
         selectorFiltradoOperadores.clearSelection();
@@ -1009,20 +1044,78 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
         MostrarOperadores.setLocationRelativeTo(this);
         MostrarOperadores.setVisible(true);
     }//GEN-LAST:event_botonSeleccionarOperadorActionPerformed
-
+    /*
+    Metodo encargado de cerrar el JDialod CreadorPuntoDeControl, ademas limipia las etiquetas de alerta
+    */
     private void botonCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCancelarActionPerformed
         CreardorPuntoDeControl.setVisible(false);
+        alertaTabla.setText("");
+        etiquetaAlertaPuntoDeControl.setText("");
     }//GEN-LAST:event_botonCancelarActionPerformed
-
+    /*
+    Metodo encargado de crear o modificar un punto de control. Valida que todos los campos obligatorios se encuentren
+    llenos. Si se trata de un nuevo punto de control, obtiene el codigo del ultimo punto de control registrado para la 
+    ruta en turno y establece su atributo ultimoPuntoDeControl en false. Crea una nueva instancia del tipo PuntoDeControl
+    y le agrega sus atributos segun la informacion recuperada. Por ultimo llama al metodo crearNUevoPuntoDeControl y lanza 
+    un mensaje informativo. Si se trata de una modificacion, recupera la informacion ingresada y llama al metodo modificarPunto
+    DeControl, por ultimo lanza un mensaje informativo.
+    */    
     private void botonAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAceptarActionPerformed
         if(textoNombrePuntoControl.getText().isEmpty() || textoCantidadPaquetesCola.getText().isEmpty() || textoOperadorAsignado.getText().isEmpty()){
             etiquetaAlertaPuntoDeControl.setText("Se deben llenar todos los campos obligatorios");
         }
         else{
-            //Definir si se crear o se modifica
+            try{
+                nombrePuntoDeControl = textoNombrePuntoControl.getText();
+                cantidadPaquetesCola = Integer.parseInt(textoCantidadPaquetesCola.getText());
+                operadorAsignado = textoOperadorAsignado.getText();
+                if(!textoTarifaOperacion.getText().equals("")){
+                    tarifaOperacion = Double.parseDouble(textoTarifaOperacion.getText());
+                    tarifaOperacionPropia = true;
+                }
+                else{
+                    tarifaOperacion = 0.00;
+                    tarifaOperacionPropia = false;
+                }    
+                if(botonAceptar.getText().equals("CREAR")){
+                //Se obtiene el codigo del ultimo punto de control y se establece el false el valor de su atributo ultimoPuntoDeControl.
+                try{
+                    codigoUltimoPuntoControl = listadoPuntosDeControl.get(listadoPuntosDeControl.size()-1).getCodigo();
+                    puntoDeControl = listadoPuntosDeControl.get(listadoPuntosDeControl.size()-1);
+                    puntoDeControl.setUltimoPuntoDeControl(false);
+                    manejadorDB.modificarPuntoDeControl(puntoDeControl);
+                }
+                catch(ArrayIndexOutOfBoundsException e){
+                    codigoUltimoPuntoControl = 0;
+                }
+                //Crear el nuevo punto de control
+                puntoDeControl = new PuntoDeControl(codigoUltimoPuntoControl + 1 , ruta.getCodigo(), nombrePuntoDeControl, tarifaOperacion, cantidadPaquetesCola, operadorAsignado, true, tarifaOperacionPropia);
+                System.out.println(manejadorDB.crearNuevoPuntoDeControl(puntoDeControl));
+                mensaje = "Punto de control creado exitosamente";
+                }    
+                else{
+                    puntoDeControl = listadoPuntosDeControl.get(tablaPuntosDeControl.getSelectedRow());
+                    puntoDeControl.setNombre(nombrePuntoDeControl);
+                    puntoDeControl.setTarifaOperacion(tarifaOperacion);
+                    puntoDeControl.setOperadorAsignado(operadorAsignado);
+                    puntoDeControl.setCantidadPaquetesCola(cantidadPaquetesCola);
+                    puntoDeControl.setTarifaOperacionPropia(tarifaOperacionPropia);
+                    mensaje = manejadorDB.modificarPuntoDeControl(puntoDeControl);
+                }
+                this.finalizarAccion(mensaje);
+                CreardorPuntoDeControl.dispose();
+            }        
+            catch(NumberFormatException e){
+                etiquetaAlertaPuntoDeControl.setText("Tarifa de operacion no valida");
+            } 
         }
     }//GEN-LAST:event_botonAceptarActionPerformed
-
+    /*
+    Metodo encargado de obtener el nombre de usuario del operador que se encuente seleccionado. Valida que se 
+    encuentre seleccionado un operador de la tabla, posteriomente obtiene el nombre de usuario y lo almacena 
+    en la variable operadorAsignado. Imprime en la etiqueta textoOperadorAsignado el valor obtenido y cierra
+    el JDialog
+    */
     private void aceptarOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptarOperadorActionPerformed
         if(tablaOperadores.getSelectedRow() == -1){
             etiquetaAlertaTablaOperadores.setText("Seleccione un operador");
@@ -1033,7 +1126,10 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             MostrarOperadores.setVisible(false);
         }
     }//GEN-LAST:event_aceptarOperadorActionPerformed
-
+    /*
+    Metodo encargado de mostrar solo 45 registros o todos los registros de la DB basado en el estado del boton
+    de seleccion selectorMostrarTodosOperadores.
+    */
     private void selectorMostrarTodosOperadoresItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectorMostrarTodosOperadoresItemStateChanged
         if(selectorMostrarTodosOperadores.isSelected()){
             selectorFiltradoOperadores.clearSelection();
@@ -1046,7 +1142,10 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             this.limpiarEtiquetasDeAlerta();
         }
     }//GEN-LAST:event_selectorMostrarTodosOperadoresItemStateChanged
-
+    /*
+    Metodo encargado de obtener el texto ingresado en el area de texto textoBusquedaOperador. Valida que se encuentre
+    seleccionado un criterio de busqueda y posteriormente llama al metdodo establecerFiltroBusquedaOperadores.
+    */
     private void textoBusquedaOperadorKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoBusquedaOperadorKeyReleased
         if(!radioBotonPrimerNombreOperador.isSelected() && !radioBotonPrimerApellidoOperador.isSelected() && !radioBotonNombreOperador.isSelected()){
             etiquetaAlertaTablaOperadores.setText("No se ha seleccionado un criterio de filtrado");
@@ -1063,15 +1162,21 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_textoBusquedaOperadorKeyReleased
-
+    /*
+    Metodo encargado de limpiar de area de busqueda
+    */
     private void radioBotonPrimerNombreOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonPrimerNombreOperadorActionPerformed
         textoBusquedaOperador.setText("");
     }//GEN-LAST:event_radioBotonPrimerNombreOperadorActionPerformed
-
+    /*
+    Metodo encargado de limpiar de area de busqueda
+    */
     private void radioBotonPrimerApellidoOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonPrimerApellidoOperadorActionPerformed
         textoBusquedaOperador.setText("");
     }//GEN-LAST:event_radioBotonPrimerApellidoOperadorActionPerformed
-
+    /*
+    Metodo encargado de limpiar de area de busqueda
+    */
     private void radioBotonNombreOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonNombreOperadorActionPerformed
         textoBusquedaOperador.setText("");
     }//GEN-LAST:event_radioBotonNombreOperadorActionPerformed

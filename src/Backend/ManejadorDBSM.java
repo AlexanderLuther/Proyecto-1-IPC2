@@ -8,10 +8,6 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
 /**
  *
  * @author helmuthluther
@@ -446,7 +442,7 @@ public class ManejadorDBSM {
         }
     }
     
-        /*
+     /*
     Metodo encargado de actualizar un registro en la base de datos correspondiente a una ruta.
     */
     public boolean consultarModificacionPuntoDeControl(Ruta ruta, PuntoDeControl puntodeControl , int tipo){
@@ -484,6 +480,26 @@ public class ManejadorDBSM {
         }
         return "Punto de control eliminado exitosamente";
     }
+    
+    public String modificarPuntoDeControl(PuntoDeControl puntoDeControl){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("UPDATE PuntoDeControl SET Nombre = ?, TarifaOperacion = ?, CantidadPaquetesCola = ?, OperadorAsignado = ?, UltimoPuntoDeControl = ?, TarifaOperacionPropia = ?"
+                                                        + " WHERE Codigo = '"+puntoDeControl.getCodigo()+"' && CodigoRuta = '"+puntoDeControl.getCodigoRuta()+"';");
+            declaracionSegura.setString(1, puntoDeControl.getNombre());
+            declaracionSegura.setDouble(2, puntoDeControl.getTarifaOperacion());
+            declaracionSegura.setInt(3, puntoDeControl.getCantidadPaquetesCola());
+            declaracionSegura.setString(4, puntoDeControl.getOperadorAsignado());
+            declaracionSegura.setBoolean(5, puntoDeControl.isUltimoPuntoDeControl());
+            declaracionSegura.setBoolean(6, puntoDeControl.isTarifaOperacionPropia());
+            declaracionSegura.executeUpdate();
+        }    
+        catch (SQLException ex) {
+            return ex.toString();
+        }
+        return "Punto de control " + puntoDeControl.getNombre() + " modificado exitosamente";
+    }
+    
 }
 
 
