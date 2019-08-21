@@ -34,8 +34,10 @@ public class ManejadorDBSM {
     private List listadoAcotado;
     private Tarifa tarifa;
     private String codigoRuta;  
+    private String codigoPaquete;
     private Ruta ruta;
     private PuntoDeControl puntoDeControl;
+    private Cliente cliente;
     /*
     Metodo encargado de establecer la conexion con la Base de Datos.
     */
@@ -99,7 +101,12 @@ public class ManejadorDBSM {
             declaracion = conexion.createStatement();
             resultado = declaracion.executeQuery(codigoSQL);
             while(resultado.next()){
-                ruta = new Ruta(resultado.getString("Codigo"), resultado.getString("Nombre"), resultado.getString("Destino"), resultado.getDouble("CuotaDestino"), resultado.getBoolean("Activa"));
+                if(codigoSQL.contains("DISTINCT")){
+                    ruta = new Ruta("", "", resultado.getString("Destino"), true);
+                }
+                else{
+                    ruta = new Ruta(resultado.getString("Codigo"), resultado.getString("Nombre"), resultado.getString("Destino"), resultado.getBoolean("Activa"));
+                }          
                 listado.add(ruta);
             }
         } catch (SQLException ex) {
@@ -131,6 +138,31 @@ public class ManejadorDBSM {
             }
         } catch (SQLException ex) {
             System.out.println("Error de conexion con la base de datos");
+        }
+        return listado;
+    }
+    
+    public List obtenerListadoClientes(String codigoSQL, int tipo){
+        try {
+            this.conectarDB();
+            listado = new ArrayList<>();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                cliente = new Cliente(resultado.getString("Nombre"), resultado.getString("Apellido"), resultado.getString("Direccion"), resultado.getString("DPI"), resultado.getString("NIT"));
+                listado.add(cliente);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        if(tipo == 0){
+            if (listado.size() > 50){
+                listadoAcotado = new ArrayList<>();
+                for(int i = 0; i < 45; i++){
+                    listadoAcotado.add(listado.get(i));
+                }
+                return listadoAcotado;
+            }
         }
         return listado;
     }
@@ -275,17 +307,19 @@ public class ManejadorDBSM {
         try {
             this.conectarDB();            
             if(primerInicio){
-                declaracionSegura = conexion.prepareStatement("INSERT INTO Tarifa (TarifaOperacionGlobal, PrecioLibraGlobal, CuotaPriorizacionGlobal) VALUES(?,?,?);");
+                declaracionSegura = conexion.prepareStatement("INSERT INTO Tarifa (TarifaOperacionGlobal, PrecioLibraGlobal, CuotaPriorizacionGlobal, CuotaDestinoGlobal) VALUES(?,?,?, ?);");
                 declaracionSegura.setDouble(1, tarifa.getTarifaOperacionGlobal());
                 declaracionSegura.setDouble(2, tarifa.getPrecioLibraGlobal());
                 declaracionSegura.setDouble(3, tarifa.getCuotaPriorizacionGlobal());
+                declaracionSegura.setDouble(4, tarifa.getCuotaDestinoGlobal());
                 declaracionSegura.executeUpdate();
             }
             else{
-                declaracionSegura = conexion.prepareStatement("UPDATE Tarifa SET TarifaOperacionGlobal = ?, PrecioLibraGlobal = ?, CuotaPriorizacionGlobal = ?;");
+                declaracionSegura = conexion.prepareStatement("UPDATE Tarifa SET TarifaOperacionGlobal = ?, PrecioLibraGlobal = ?, CuotaPriorizacionGlobal = ?, CuotaDestinoGlobal =?;");
                 declaracionSegura.setDouble(1, tarifa.getTarifaOperacionGlobal());
                 declaracionSegura.setDouble(2, tarifa.getPrecioLibraGlobal());
                 declaracionSegura.setDouble(3, tarifa.getCuotaPriorizacionGlobal());
+                declaracionSegura.setDouble(4, tarifa.getCuotaDestinoGlobal());
                 declaracionSegura.executeUpdate();
             }
         } 
@@ -304,7 +338,7 @@ public class ManejadorDBSM {
             declaracionSegura = conexion.prepareStatement("SELECT* FROM Tarifa;");
             resultado = declaracionSegura.executeQuery();
             while(resultado.next()){
-                tarifa = new Tarifa(resultado.getDouble("TarifaOperacionGlobal"), resultado.getDouble("PrecioLibraGlobal"), resultado.getDouble("CuotaPriorizacionGlobal"));
+                tarifa = new Tarifa(resultado.getDouble("TarifaOperacionGlobal"), resultado.getDouble("PrecioLibraGlobal"), resultado.getDouble("CuotaPriorizacionGlobal"), resultado.getDouble("CuotaDestinoGlobal"));
             }
         } 
         catch (SQLException ex) {
@@ -320,12 +354,11 @@ public class ManejadorDBSM {
     public String crearNuevaRuta(Ruta ruta){
         try {
             this.conectarDB();
-            declaracionSegura = conexion.prepareStatement("INSERT INTO Ruta (Codigo, Nombre, Destino, CuotaDestino, Activa) VALUES(?, ?, ?, ?, ?);");
+            declaracionSegura = conexion.prepareStatement("INSERT INTO Ruta (Codigo, Nombre, Destino, Activa) VALUES(?, ?, ?, ?);");
             declaracionSegura.setString(1, ruta.getCodigo());
             declaracionSegura.setString(2, ruta.getNombre());
             declaracionSegura.setString(3, ruta.getDestino());
-            declaracionSegura.setDouble(4, ruta.getCuotaDestino());
-            declaracionSegura.setBoolean(5, ruta.isActiva());
+            declaracionSegura.setBoolean(4, ruta.isActiva());
             declaracionSegura.executeUpdate();
             this.actualizarCodigoRuta(ruta.getCodigo());
         }    
@@ -342,10 +375,9 @@ public class ManejadorDBSM {
         try {
             this.conectarDB();
             if(ruta.isActiva()){
-                declaracionSegura = conexion.prepareStatement("UPDATE Ruta SET Nombre = ?, CuotaDestino = ?, Activa = ? WHERE Codigo = '"+ruta.getCodigo()+"';");
+                declaracionSegura = conexion.prepareStatement("UPDATE Ruta SET Nombre = ?, Activa = ? WHERE Codigo = '"+ruta.getCodigo()+"';");
                 declaracionSegura.setString(1, ruta.getNombre());
-                declaracionSegura.setDouble(2, ruta.getCuotaDestino());
-                declaracionSegura.setBoolean(3, ruta.isActiva());
+                declaracionSegura.setBoolean(2, ruta.isActiva());
                 declaracionSegura.executeUpdate();
             }
             else{
@@ -353,10 +385,9 @@ public class ManejadorDBSM {
                 resultado = declaracion.executeQuery("SELECT COUNT(*) FROM PaqueteAsignadoRuta WHERE CodigoRuta = '"+ruta.getCodigo()+"' && EnDestino = FALSE;");
                 while(resultado.next()){
                     if(resultado.getInt("COUNT(*)") == 0){
-                        declaracionSegura = conexion.prepareStatement("UPDATE Ruta SET Nombre = ?, CuotaDestino = ?, Activa = ? WHERE Codigo = '"+ruta.getCodigo()+"';");
+                        declaracionSegura = conexion.prepareStatement("UPDATE Ruta SET Nombre = ?, Activa = ? WHERE Codigo = '"+ruta.getCodigo()+"';");
                         declaracionSegura.setString(1, ruta.getNombre());
-                        declaracionSegura.setDouble(2, ruta.getCuotaDestino());
-                        declaracionSegura.setBoolean(3, ruta.isActiva());
+                        declaracionSegura.setBoolean(2, ruta.isActiva());
                         declaracionSegura.executeUpdate();
                     }
                     else{
@@ -411,6 +442,31 @@ public class ManejadorDBSM {
         }
     }
     
+    public String obtenerCodigoPaquete(){
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT* FROM Codigo;");
+             while(resultado.next()){
+                 codigoPaquete = resultado.getString("CodigoPaquete");
+             }
+        }    
+        catch (SQLException ex) {
+            return ex.toString();
+        }
+        return codigoPaquete;
+    }
+    
+     public void actualizarCodigoPaquete(String codigo){
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            declaracion.executeUpdate("UPDATE Codigo SET CodigoPaquete = '"+codigo+"';");
+        }    
+        catch (SQLException ex) {
+            System.out.println("Error");
+        }
+    }
       //-------------------------------------------------------------PUNTO DE CONTROL----------------------------------------------------------------------------------------------------------
     
     /*
@@ -500,6 +556,143 @@ public class ManejadorDBSM {
         return "Punto de control " + puntoDeControl.getNombre() + " modificado exitosamente";
     }
     
+    //-------------------------------------------------------------CLIENTE----------------------------------------------------------------------------------------------------------
+ 
+    public String crearNuevoCliente(Cliente cliente){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("INSERT INTO Cliente (NIT, DPI, Nombre, Apellido, Direccion) VALUES(?, ?, ?, ?, ?);");
+            declaracionSegura.setString(1, cliente.getNIT());
+            declaracionSegura.setString(2, cliente.getDPI());
+            declaracionSegura.setString(3, cliente.getNombre());
+            declaracionSegura.setString(4, cliente.getApellido());
+            declaracionSegura.setString(5, cliente.getDireccion());
+            declaracionSegura.executeUpdate();
+        }    
+        catch (SQLException ex) {
+            return ex.toString();
+        }
+        return "Cliente " + cliente.getNombre()+ " registrada exitosamente";
+    }
+    
+    public String modificarCliente(Cliente cliente){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("UPDATE Cliente SET NIT = ?, Nombre = ?, Apellido = ?, Direccion = ? WHERE DPI = '"+cliente.getDPI()+"';");
+            declaracionSegura.setString(1, cliente.getNIT());
+            declaracionSegura.setString(2, cliente.getNombre());
+            declaracionSegura.setString(3, cliente.getApellido());
+            declaracionSegura.setString(4, cliente.getDireccion());
+            declaracionSegura.executeUpdate();
+        }    
+        catch (SQLException ex) {
+            return ex.toString();
+        }
+        return "Cliente " + cliente.getNombre()+ " modificado exitosamente";
+    }
+    
+    public boolean buscarClientePorNIT(String NIT){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("SELECT COUNT(*) FROM Cliente WHERE  NIT = ?;");
+            declaracionSegura.setString(1, NIT);
+            resultado = declaracionSegura.executeQuery();
+            while(resultado.next()){
+                return resultado.getInt("COUNT(*)") == 1;
+            }
+        }    
+        catch (SQLException ex) {
+            System.out.println("Error");
+        }
+        return false;
+    }
+    
+     public boolean buscarClientePorDPI(String DPI){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("SELECT COUNT(*) FROM Cliente WHERE  DPI = ?;");
+            declaracionSegura.setString(1, DPI);
+            resultado = declaracionSegura.executeQuery();
+            while(resultado.next()){
+                return resultado.getInt("COUNT(*)") == 1;
+            }
+        }    
+        catch (SQLException ex) {
+            System.out.println("Error");
+        }
+        return false;
+    }
+    
+    public Cliente obtenerClientePorNIT(String NIT){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("SELECT* FROM Cliente WHERE  NIT = ?;");
+            declaracionSegura.setString(1, NIT);
+            resultado = declaracionSegura.executeQuery();
+            while(resultado.next()){
+                cliente = new Cliente(resultado.getString("Nombre"), resultado.getString("Apellido") , resultado.getString("Direccion"), resultado.getString("DPI"), resultado.getString("NIT"));
+            }
+        }    
+        catch (SQLException ex) {
+            System.out.println("Error");
+        }
+        return cliente;
+    }
+    
+    public Cliente obtenerClientePorDPI(String DPI){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("SELECT* FROM Cliente WHERE  DPI = ?;");
+            declaracionSegura.setString(1, DPI);
+            resultado = declaracionSegura.executeQuery();
+            while(resultado.next()){
+                cliente = new Cliente(resultado.getString("Nombre"), resultado.getString("Apellido") , resultado.getString("Direccion"), resultado.getString("DPI"), resultado.getString("NIT"));
+            }
+        }    
+        catch (SQLException ex) {
+            System.out.println("Error");
+        }
+        return cliente;
+    }
+    
+    //-------------------------------------------------------------PAQUETE----------------------------------------------------------------------------------------------------------
+     public String crearNuevoPaquete(Paquete paquete){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("INSERT INTO Paquete (Codigo, Peso, Prioridad, Destino, PrecioDestino, PrecioPriorizacion, PrecioLibra, PrecioTotal, DPICliente, FechaIngreso) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            declaracionSegura.setString(1, paquete.getCodigo());
+            declaracionSegura.setDouble(2, paquete.getPeso());
+            declaracionSegura.setBoolean(3, paquete.isPrioridad());
+            declaracionSegura.setString(4, paquete.getDestino());
+            declaracionSegura.setDouble(5, paquete.getPrecioDestino());
+            declaracionSegura.setDouble(6, paquete.getPrecioPriorizacion());
+            declaracionSegura.setDouble(7, paquete.getPrecioLibra());
+            declaracionSegura.setDouble(8, paquete.getPrecioTotal());
+            declaracionSegura.setString(9, paquete.getDPI());
+            declaracionSegura.setTimestamp(10, paquete.getFechaIngreso());
+            declaracionSegura.executeUpdate();
+        }    
+        catch (SQLException ex) {
+            return ex.toString();
+        }
+        return "Paquete " + paquete.getCodigo()+ " ingresado exitosamente";
+    }
+     
+     //-------------------------------------------------------------BODEGA---------------------------------------------------------------------------------------------------------
+      public void guardarPaqueteEnBodega(Paquete paquete){
+        try {
+            this.conectarDB();
+            declaracionSegura = conexion.prepareStatement("INSERT INTO Bodega (CodigoPaquete, Prioridad, Destino, FechaIngreso) VALUES(?, ?, ?, ?);");
+            declaracionSegura.setString(1, paquete.getCodigo());
+            declaracionSegura.setBoolean(2, paquete.isPrioridad());
+            declaracionSegura.setString(3, paquete.getDestino());
+            declaracionSegura.setTimestamp(4, paquete.getFechaIngreso());
+            declaracionSegura.executeUpdate();
+        }    
+        catch (SQLException ex) {
+            System.out.println(ex); 
+        }
+    }
 }
 
 

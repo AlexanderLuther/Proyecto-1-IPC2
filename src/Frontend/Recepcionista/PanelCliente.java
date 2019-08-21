@@ -1,111 +1,98 @@
-package Frontend;
-
-
+package Frontend.Recepcionista;
+import Backend.Cliente;
 import Backend.ManejadorBusqueda;
 import Backend.ManejadorDBSM;
-import Backend.Usuario;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.observablecollections.ObservableList;
-
 /**
  *
  * @author helmuthluther
  */
-public class PanelUsuario extends javax.swing.JPanel {
+public class PanelCliente extends javax.swing.JPanel {
     
-    //Constantes de la clase.
-    private final String ADMINISTRADOR = "Administrador";
-    private final String OPERADOR = "Operador";
-    
+   
     //Variables e instancias de la clase.
     private ManejadorDBSM manejadorDB;
     private ManejadorBusqueda manejadorBusqueda = new ManejadorBusqueda();
-    private List<Usuario> listadoUsuarios;
-    private ObservableList<Usuario> observableListUsuarios;
-    private Usuario usuario;
-    private boolean contrasenaOculta;
+    private List<Cliente> listadoClientes;
+    private ObservableList<Cliente> observableListClientes;
+    private Cliente cliente;
     private String nombres;
     private String apellidos;
-    private String nombreUsuario;
-    private String contrasena;
-    private String tipo;
+    private String direccion;
+    private String DPI;
+    private String NIT;
     private String mensaje;
     private String patronBusqueda;
    
     //Constructor de la clase
-    public PanelUsuario() {
+    public PanelCliente() {
         this.manejadorDB = new ManejadorDBSM();
-        this.listadoUsuarios = new ArrayList<>();
-        this.observableListUsuarios = ObservableCollections.observableList(listadoUsuarios);
+        this.listadoClientes = new ArrayList<>();
+        this.observableListClientes = ObservableCollections.observableList(listadoClientes);
         initComponents();
     }
 
     //Metodos utilizados para la implementacion de Beans Beanding. ------------------
-    public ObservableList<Usuario> getObservableList() {
-        return observableListUsuarios;
+    public ObservableList<Cliente> getObservableList() {
+        return observableListClientes;
     }
 
-    public void setObservableList(ObservableList<Usuario> observableList) {
-        this.observableListUsuarios = observableList;
+    public void setObservableList(ObservableList<Cliente> observableList) {
+        this.observableListClientes = observableList;
     }
     
     public void llenarTabla(List listado){
-        this.observableListUsuarios.clear();
-        this.observableListUsuarios.addAll(listado);
+        this.observableListClientes.clear();
+        this.observableListClientes.addAll(listado);
     }
     
-    //0 llenar con 50
-    public void obtenerUsuarios(int tipo){
-        listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario ORDER BY Nombre;",tipo);
-        this.llenarTabla(listadoUsuarios);
+    public void obtenerClientes(int tipo){
+        listadoClientes = manejadorDB.obtenerListadoClientes("SELECT* FROM Cliente ORDER BY DPI;",tipo);
+        this.llenarTabla(listadoClientes);
     }
     //-------------------------------------------------------------------------------
     
     /*
     Metodo encargado de limpiar las areas de texto y reestablecer a los valores iniciales el 
-    JDialog CrearModificarUsuario
+    JDialog CrearModificarCliente
     */
-    public void limpiarCreadorModificadorUsuario(){
-        textoContrasena.setEchoChar('*');
-        botonVerContrasena.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/ver.png")));
-        textoNombreUsuario.setEditable(true);
-        selectorTipoUsuario.setEnabled(true);
+    public void limpiarCreadorModificadorCliente(){
         textoNombres.setText("");
         textoApellidos.setText("");
-        textoNombreUsuario.setText("");
-        textoContrasena.setText("");
-        selectorTipoUsuario.setSelectedIndex(0);
+        textoNIT.setText("");
+        textoDPI.setText("");
+        textoCiudad.setText("");
     }
     
     /*
-    Metodo encargado inicializar el JDialog CrearModificarUsuario en base al parametro entero que recibe.
+    Metodo encargado inicializar el JDialog CrearModificarCliente en base al parametro entero que recibe.
     Si recibe un 0 se trata de una creacion de usuario, de lo contrario se trata de una modificacion de 
     usuario. Por ultimo centra y hace visible el JDialog.
     */
-    public void mostrarCreadorModificadorUsuario(int tipo){
-        contrasenaOculta = true;
+    public void mostrarCreadorModificadorCliente(int tipo){
         if(tipo == 0){
-            CrearModificarUsuario.setTitle("Nuevo Usuario");
+            textoDPI.setEditable(true);
+            CrearModificarCliente.setTitle("Nuevo Cliente");
             botonCrearModificar.setText("CREAR");
             botonCrearModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/crear.png")));
         }
         else{
-            CrearModificarUsuario.setTitle("Modificar Usuario");
+            textoDPI.setEditable(false);
+            CrearModificarCliente.setTitle("Modificar Cliente");
             botonCrearModificar.setText("MODIFICAR");
             botonCrearModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/editar.png")));
-            textoNombreUsuario.setEditable(false);
-            selectorTipoUsuario.setEnabled(false);
         }
-        CrearModificarUsuario.setLocationRelativeTo(this);
-        CrearModificarUsuario.setVisible(true);
+        CrearModificarCliente.setLocationRelativeTo(this);
+        CrearModificarCliente.setVisible(true);
     }
     
     //Metodo encargado de limpiar las areas de mensajes de alerta.
     public void limpiarAlertas(){
         alertaTabla.setText("");
-        etiquetaAlertaUsuario.setText("");
+        etiquetaAlertaCliente.setText("");
     }
     
     /*
@@ -115,12 +102,12 @@ public class PanelUsuario extends javax.swing.JPanel {
     public void finalizarAccion(){
         this.lanzarMensaje(mensaje);
         this.limpiarAlertas();
-        if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonNombreUsuario.isSelected() && !radioBotonTipoUsuario.isSelected() && !radioBotonEstado.isSelected()){
-            if(selectorMostrarTodosLosRegistros.isSelected()){
-                this.obtenerUsuarios(1);
+        if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonCiudad.isSelected() && !radioBotonNIT.isSelected() && !radioBotonDPI.isSelected()){
+            if(!selectorMostrarTodosLosRegistros.isSelected()){
+                this.obtenerClientes(0);
             }
             else{
-                this.obtenerUsuarios(0);
+                this.obtenerClientes(1);
             }   
         }
         else{
@@ -135,21 +122,21 @@ public class PanelUsuario extends javax.swing.JPanel {
     public void establecerFiltroDeBusqueda(){
         selectorMostrarTodosLosRegistros.setSelected(false);
         if(radioBotonPrimerNombre.isSelected()){    
-            listadoUsuarios = this.manejadorBusqueda.busquedaUsuarioPorNombres(patronBusqueda, 0);
+            listadoClientes = this.manejadorBusqueda.busquedaClientePorNombres(patronBusqueda);
         }
         if(radioBotonPrimerApellido.isSelected()){
-            listadoUsuarios = this.manejadorBusqueda.busquedaUsuarioPorApellidos(patronBusqueda, 0);
+            listadoClientes = this.manejadorBusqueda.busquedaClientePorApellidos(patronBusqueda);
         }
-        if(radioBotonNombreUsuario.isSelected()){
-            listadoUsuarios = this.manejadorBusqueda.busquedaPorNombreUsuario(patronBusqueda, 0);    
+        if(radioBotonCiudad.isSelected()){
+            listadoClientes = this.manejadorBusqueda.busquedaClientePorCiudad(patronBusqueda);  
         }
-        if(radioBotonTipoUsuario.isSelected()){
-            listadoUsuarios = this.manejadorBusqueda.busquedaUsuarioPorTipo(patronBusqueda, 0);
+        if(radioBotonNIT.isSelected()){
+            listadoClientes = this.manejadorBusqueda.busquedaClientePorNIT(patronBusqueda);
         }
-        if(radioBotonEstado.isSelected()){
-            listadoUsuarios = this.manejadorBusqueda.busquedaUsuarioPorEstado(patronBusqueda, 0);
+        if(radioBotonDPI.isSelected()){
+            listadoClientes = this.manejadorBusqueda.busquedaClientePorDPI(patronBusqueda);
         }
-        this.llenarTabla(listadoUsuarios);
+        this.llenarTabla(listadoClientes);
         this.limpiarAlertas();
     }
     
@@ -166,6 +153,7 @@ public class PanelUsuario extends javax.swing.JPanel {
        selectorMostrarTodosLosRegistros.setSelected(false);
        selectorFiltrado.clearSelection();
    }
+   
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -173,7 +161,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         selectorFiltrado = new javax.swing.ButtonGroup();
-        CrearModificarUsuario = new javax.swing.JDialog();
+        CrearModificarCliente = new javax.swing.JDialog();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
@@ -182,19 +170,18 @@ public class PanelUsuario extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        textoContrasena = new javax.swing.JPasswordField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        textoNombreUsuario = new javax.swing.JTextField();
+        textoNIT = new javax.swing.JTextField();
         textoNombres = new javax.swing.JTextField();
         textoApellidos = new javax.swing.JTextField();
-        etiquetaAlertaUsuario = new javax.swing.JLabel();
-        botonVerContrasena = new rojeru_san.RSButton();
-        selectorTipoUsuario = new javax.swing.JComboBox<>();
+        etiquetaAlertaCliente = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
+        textoDPI = new javax.swing.JFormattedTextField();
+        textoCiudad = new javax.swing.JTextField();
         jPanel6 = new javax.swing.JPanel();
         botonCancelar = new rojerusan.RSButtonIconI();
         botonCrearModificar = new rojerusan.RSButtonIconI();
@@ -205,42 +192,36 @@ public class PanelUsuario extends javax.swing.JPanel {
         etiquetaMensaje = new javax.swing.JLabel();
         botonAceptarMensaje = new rojerusan.RSButtonIconI();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tablaUsuarios = new javax.swing.JTable();
+        tablaClientes = new javax.swing.JTable();
         botonBuscar = new rojerusan.RSButtonIconI();
         selectorMostrarTodosLosRegistros = new javax.swing.JCheckBox();
         jPanel1 = new javax.swing.JPanel();
         botonNuevoUsuario = new rojerusan.RSButtonIconI();
         botonModificar = new rojerusan.RSButtonIconI();
-        botonEliminar = new rojerusan.RSButtonIconI();
-        botonDesactivar = new rojerusan.RSButtonIconI();
-        botonActivar = new rojerusan.RSButtonIconI();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         radioBotonPrimerApellido = new javax.swing.JRadioButton();
-        radioBotonTipoUsuario = new javax.swing.JRadioButton();
-        radioBotonEstado = new javax.swing.JRadioButton();
-        radioBotonNombreUsuario = new javax.swing.JRadioButton();
+        radioBotonNIT = new javax.swing.JRadioButton();
+        radioBotonDPI = new javax.swing.JRadioButton();
+        radioBotonCiudad = new javax.swing.JRadioButton();
         radioBotonPrimerNombre = new javax.swing.JRadioButton();
         alertaTabla = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         textoBusqueda = new rojeru_san.RSMTextFull();
 
-        CrearModificarUsuario.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        CrearModificarUsuario.setTitle("Creacion De Usuario Administrador");
-        CrearModificarUsuario.setMaximumSize(new java.awt.Dimension(701, 630));
-        CrearModificarUsuario.setMinimumSize(new java.awt.Dimension(701, 630));
-        CrearModificarUsuario.setModal(true);
-        CrearModificarUsuario.setPreferredSize(new java.awt.Dimension(701, 630));
-        CrearModificarUsuario.setResizable(false);
-        CrearModificarUsuario.getContentPane().setLayout(new java.awt.GridBagLayout());
+        CrearModificarCliente.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        CrearModificarCliente.setTitle("Creacion De Usuario Administrador");
+        CrearModificarCliente.setMinimumSize(new java.awt.Dimension(700, 620));
+        CrearModificarCliente.setModal(true);
+        CrearModificarCliente.setResizable(false);
+        CrearModificarCliente.getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel3.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel3.setMaximumSize(new java.awt.Dimension(701, 562));
-        jPanel3.setMinimumSize(new java.awt.Dimension(701, 562));
+        jPanel3.setMaximumSize(new java.awt.Dimension(682, 593));
+        jPanel3.setMinimumSize(new java.awt.Dimension(682, 593));
         jPanel3.setName(""); // NOI18N
-        jPanel3.setLayout(new java.awt.GridBagLayout());
 
-        jPanel4.setBackground(new java.awt.Color(51, 153, 0));
+        jPanel4.setBackground(new java.awt.Color(0, 153, 255));
 
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/usuario.png"))); // NOI18N
@@ -251,7 +232,7 @@ public class PanelUsuario extends javax.swing.JPanel {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 689, Short.MAX_VALUE)
+                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -259,17 +240,8 @@ public class PanelUsuario extends javax.swing.JPanel {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(jLabel9)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.ipadx = 625;
-        gridBagConstraints.ipady = 21;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        jPanel3.add(jPanel4, gridBagConstraints);
 
         jPanel5.setBackground(new java.awt.Color(204, 204, 204));
 
@@ -280,26 +252,18 @@ public class PanelUsuario extends javax.swing.JPanel {
 
         jLabel3.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(0, 102, 153));
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/nombreUsuario.png"))); // NOI18N
-        jLabel3.setText("Nombre de Usuario:");
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/destino.png"))); // NOI18N
+        jLabel3.setText("Direccion:");
 
         jLabel4.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(0, 102, 153));
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/contrasena.png"))); // NOI18N
-        jLabel4.setText("Contraseña:");
+        jLabel4.setText("DPI:");
 
         jLabel5.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 102, 153));
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/nombre.png"))); // NOI18N
         jLabel5.setText("Nombres:");
-
-        textoContrasena.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
-        textoContrasena.setForeground(new java.awt.Color(0, 102, 153));
-        textoContrasena.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                textoContrasenaKeyTyped(evt);
-            }
-        });
 
         jLabel6.setFont(new java.awt.Font("DejaVu Sans", 0, 16)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 0, 0));
@@ -317,11 +281,11 @@ public class PanelUsuario extends javax.swing.JPanel {
         jLabel10.setForeground(new java.awt.Color(255, 0, 0));
         jLabel10.setText("*");
 
-        textoNombreUsuario.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
-        textoNombreUsuario.setForeground(new java.awt.Color(0, 102, 153));
-        textoNombreUsuario.addKeyListener(new java.awt.event.KeyAdapter() {
+        textoNIT.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
+        textoNIT.setForeground(new java.awt.Color(0, 102, 153));
+        textoNIT.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                textoNombreUsuarioKeyTyped(evt);
+                textoNITKeyTyped(evt);
             }
         });
 
@@ -342,31 +306,35 @@ public class PanelUsuario extends javax.swing.JPanel {
             }
         });
 
-        etiquetaAlertaUsuario.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
-        etiquetaAlertaUsuario.setForeground(new java.awt.Color(255, 0, 0));
-        etiquetaAlertaUsuario.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        etiquetaAlertaUsuario.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-
-        botonVerContrasena.setBackground(new java.awt.Color(204, 204, 204));
-        botonVerContrasena.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/ver.png"))); // NOI18N
-        botonVerContrasena.setBorderPainted(false);
-        botonVerContrasena.setColorHover(new java.awt.Color(153, 153, 153));
-        botonVerContrasena.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonVerContrasenaActionPerformed(evt);
-            }
-        });
-
-        selectorTipoUsuario.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Administrador", "Operador", "Recepcionista" }));
+        etiquetaAlertaCliente.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        etiquetaAlertaCliente.setForeground(new java.awt.Color(255, 0, 0));
+        etiquetaAlertaCliente.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        etiquetaAlertaCliente.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         jLabel11.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
         jLabel11.setForeground(new java.awt.Color(0, 102, 153));
-        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/silueta-de-usuario.png"))); // NOI18N
-        jLabel11.setText("Tipo de Usuario:");
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/contrasena.png"))); // NOI18N
+        jLabel11.setText("NIT:");
 
         jLabel12.setFont(new java.awt.Font("DejaVu Sans", 0, 16)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 0, 0));
         jLabel12.setText("*");
+
+        textoDPI.setForeground(new java.awt.Color(0, 102, 153));
+        try {
+            textoDPI.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("####-#####-####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+        textoDPI.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+
+        textoCiudad.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
+        textoCiudad.setForeground(new java.awt.Color(0, 102, 153));
+        textoCiudad.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                textoCiudadKeyTyped(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -375,7 +343,7 @@ public class PanelUsuario extends javax.swing.JPanel {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(0, 0, 0)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(etiquetaAlertaUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(etiquetaAlertaCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel6)
@@ -387,29 +355,24 @@ public class PanelUsuario extends javax.swing.JPanel {
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel5Layout.createSequentialGroup()
                                 .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
                                 .addComponent(textoApellidos, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
                                     .addComponent(jLabel5))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(textoNombreUsuario, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textoNombres, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(textoNombres, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(textoCiudad, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel5Layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(jPanel5Layout.createSequentialGroup()
-                                        .addComponent(jLabel11)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(selectorTipoUsuario, 0, 304, Short.MAX_VALUE)
-                                    .addComponent(textoContrasena))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(botonVerContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel11))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(textoDPI, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(textoNIT, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -429,44 +392,29 @@ public class PanelUsuario extends javax.swing.JPanel {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8)
-                    .addComponent(textoNombreUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(textoCiudad, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel10)
+                    .addComponent(textoDPI, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel10)
-                            .addComponent(textoContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(botonVerContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(selectorTipoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(etiquetaAlertaUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(etiquetaAlertaCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel11)
-                            .addComponent(jLabel12))
+                            .addComponent(jLabel12)
+                            .addComponent(textoNIT, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(32, Short.MAX_VALUE))))
         );
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.ipadx = 31;
-        gridBagConstraints.ipady = 26;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 50, 0, 0);
-        jPanel3.add(jPanel5, gridBagConstraints);
-
         jPanel6.setBackground(new java.awt.Color(204, 204, 204));
 
-        botonCancelar.setBackground(new java.awt.Color(51, 153, 0));
+        botonCancelar.setBackground(new java.awt.Color(0, 153, 255));
         botonCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/cancelar.png"))); // NOI18N
         botonCancelar.setText("CANCELAR");
         botonCancelar.setColorHover(new java.awt.Color(153, 153, 153));
@@ -476,7 +424,7 @@ public class PanelUsuario extends javax.swing.JPanel {
             }
         });
 
-        botonCrearModificar.setBackground(new java.awt.Color(51, 153, 0));
+        botonCrearModificar.setBackground(new java.awt.Color(0, 153, 255));
         botonCrearModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/crear.png"))); // NOI18N
         botonCrearModificar.setText("CREAR");
         botonCrearModificar.setColorHover(new java.awt.Color(153, 153, 153));
@@ -493,7 +441,7 @@ public class PanelUsuario extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                 .addGap(70, 70, 70)
                 .addComponent(botonCrearModificar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
                 .addComponent(botonCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(70, 70, 70))
         );
@@ -507,29 +455,43 @@ public class PanelUsuario extends javax.swing.JPanel {
                 .addGap(28, 28, 28))
         );
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.ipadx = 55;
-        gridBagConstraints.ipady = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 50, 0, 0);
-        jPanel3.add(jPanel6, gridBagConstraints);
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(75, 75, 75)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipady = 37;
+        gridBagConstraints.ipadx = 19;
+        gridBagConstraints.ipady = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        CrearModificarUsuario.getContentPane().add(jPanel3, gridBagConstraints);
+        CrearModificarCliente.getContentPane().add(jPanel3, gridBagConstraints);
 
         MostradorMensajes.setTitle("Mensaje");
         MostradorMensajes.setBackground(new java.awt.Color(204, 204, 204));
-        MostradorMensajes.setMinimumSize(new java.awt.Dimension(406, 200));
+        MostradorMensajes.setMinimumSize(new java.awt.Dimension(600, 200));
         MostradorMensajes.setModal(true);
         MostradorMensajes.setResizable(false);
 
-        jPanel7.setBackground(new java.awt.Color(51, 153, 0));
+        jPanel7.setBackground(new java.awt.Color(0, 153, 255));
 
         jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/mensaje.png"))); // NOI18N
@@ -540,7 +502,7 @@ public class PanelUsuario extends javax.swing.JPanel {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
@@ -554,10 +516,10 @@ public class PanelUsuario extends javax.swing.JPanel {
         jPanel14.setBackground(new java.awt.Color(204, 204, 204));
 
         etiquetaMensaje.setFont(new java.awt.Font("Roboto", 1, 16)); // NOI18N
-        etiquetaMensaje.setForeground(new java.awt.Color(51, 153, 0));
+        etiquetaMensaje.setForeground(new java.awt.Color(0, 153, 255));
         etiquetaMensaje.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        botonAceptarMensaje.setBackground(new java.awt.Color(51, 153, 0));
+        botonAceptarMensaje.setBackground(new java.awt.Color(0, 153, 255));
         botonAceptarMensaje.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/ok.png"))); // NOI18N
         botonAceptarMensaje.setText("ACEPTAR");
         botonAceptarMensaje.setColorHover(new java.awt.Color(153, 153, 153));
@@ -571,28 +533,27 @@ public class PanelUsuario extends javax.swing.JPanel {
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addContainerGap(202, Short.MAX_VALUE)
+                .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(199, 199, 199))
             .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel14Layout.createSequentialGroup()
                     .addGap(3, 3, 3)
-                    .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(etiquetaMensaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
-                            .addGap(0, 107, Short.MAX_VALUE)
-                            .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(93, 93, 93)))
+                    .addComponent(etiquetaMensaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGap(3, 3, 3)))
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 118, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addContainerGap(51, Short.MAX_VALUE)
+                .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27))
             .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel14Layout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(etiquetaMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(25, Short.MAX_VALUE)))
+                    .addContainerGap(71, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout MostradorMensajesLayout = new javax.swing.GroupLayout(MostradorMensajes.getContentPane());
@@ -614,42 +575,33 @@ public class PanelUsuario extends javax.swing.JPanel {
         setBackground(new java.awt.Color(204, 204, 204));
         setLayout(new java.awt.GridBagLayout());
 
-        tablaUsuarios.setBackground(new java.awt.Color(204, 204, 204));
-        tablaUsuarios.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
-        tablaUsuarios.setForeground(new java.awt.Color(0, 102, 153));
-        tablaUsuarios.setGridColor(new java.awt.Color(255, 255, 255));
-        tablaUsuarios.setSelectionBackground(new java.awt.Color(51, 153, 0));
-        tablaUsuarios.setSelectionForeground(new java.awt.Color(204, 204, 204));
+        tablaClientes.setBackground(new java.awt.Color(204, 204, 204));
+        tablaClientes.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        tablaClientes.setForeground(new java.awt.Color(0, 102, 153));
+        tablaClientes.setGridColor(new java.awt.Color(255, 255, 255));
+        tablaClientes.setSelectionBackground(new java.awt.Color(0, 153, 255));
+        tablaClientes.setSelectionForeground(new java.awt.Color(204, 204, 204));
 
         org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${observableList}");
-        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, tablaUsuarios);
-        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nombres}"));
-        columnBinding.setColumnName("NOMBRES");
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, tablaClientes);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${DPI}"));
+        columnBinding.setColumnName("DPI");
         columnBinding.setColumnClass(String.class);
-        columnBinding.setEditable(false);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${apellidos}"));
-        columnBinding.setColumnName("APELLIDOS");
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${NIT}"));
+        columnBinding.setColumnName("NIT");
         columnBinding.setColumnClass(String.class);
-        columnBinding.setEditable(false);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nombreUsuario}"));
-        columnBinding.setColumnName("NOMBRE DE USUARIO");
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nombre}"));
+        columnBinding.setColumnName("Nombre");
         columnBinding.setColumnClass(String.class);
-        columnBinding.setEditable(false);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${contrasena}"));
-        columnBinding.setColumnName("CONTRASEÑA");
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${apellido}"));
+        columnBinding.setColumnName("Apellido");
         columnBinding.setColumnClass(String.class);
-        columnBinding.setEditable(false);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${tipo}"));
-        columnBinding.setColumnName("TIPO");
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${direccion}"));
+        columnBinding.setColumnName("Direccion");
         columnBinding.setColumnClass(String.class);
-        columnBinding.setEditable(false);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${activo}"));
-        columnBinding.setColumnName("ACTIVO");
-        columnBinding.setColumnClass(Boolean.class);
-        columnBinding.setEditable(false);
         bindingGroup.addBinding(jTableBinding);
         jTableBinding.bind();
-        jScrollPane1.setViewportView(tablaUsuarios);
+        jScrollPane1.setViewportView(tablaClientes);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -699,10 +651,10 @@ public class PanelUsuario extends javax.swing.JPanel {
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
 
-        botonNuevoUsuario.setBackground(new java.awt.Color(51, 153, 0));
+        botonNuevoUsuario.setBackground(new java.awt.Color(0, 153, 255));
         botonNuevoUsuario.setForeground(new java.awt.Color(0, 102, 153));
         botonNuevoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/usuario.png"))); // NOI18N
-        botonNuevoUsuario.setText("Nuevo Usuario");
+        botonNuevoUsuario.setText("Nuevo");
         botonNuevoUsuario.setColorHover(new java.awt.Color(153, 153, 153));
         botonNuevoUsuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -710,7 +662,7 @@ public class PanelUsuario extends javax.swing.JPanel {
             }
         });
 
-        botonModificar.setBackground(new java.awt.Color(51, 153, 0));
+        botonModificar.setBackground(new java.awt.Color(0, 153, 255));
         botonModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/editar.png"))); // NOI18N
         botonModificar.setText("Modificar");
         botonModificar.setColorHover(new java.awt.Color(153, 153, 153));
@@ -720,73 +672,31 @@ public class PanelUsuario extends javax.swing.JPanel {
             }
         });
 
-        botonEliminar.setBackground(new java.awt.Color(51, 153, 0));
-        botonEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/eliminar.png"))); // NOI18N
-        botonEliminar.setText("Eliminar");
-        botonEliminar.setColorHover(new java.awt.Color(153, 153, 153));
-        botonEliminar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonEliminarActionPerformed(evt);
-            }
-        });
-
-        botonDesactivar.setBackground(new java.awt.Color(51, 153, 0));
-        botonDesactivar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/desactivar.png"))); // NOI18N
-        botonDesactivar.setText("Desactivar");
-        botonDesactivar.setColorHover(new java.awt.Color(153, 153, 153));
-        botonDesactivar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonDesactivarActionPerformed(evt);
-            }
-        });
-
-        botonActivar.setBackground(new java.awt.Color(51, 153, 0));
-        botonActivar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/aceptar.png"))); // NOI18N
-        botonActivar.setText("Activar");
-        botonActivar.setColorHover(new java.awt.Color(153, 153, 153));
-        botonActivar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonActivarActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(botonEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(botonActivar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(botonDesactivar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(botonModificar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(13, Short.MAX_VALUE)
+                .addComponent(botonModificar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(13, 13, 13)
                     .addComponent(botonNuevoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(8, Short.MAX_VALUE)))
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(62, 62, 62)
                 .addComponent(botonModificar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15)
-                .addComponent(botonEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15)
-                .addComponent(botonActivar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
-                .addComponent(botonDesactivar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(15, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(11, 11, 11)
                     .addComponent(botonNuevoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(216, Short.MAX_VALUE)))
+                    .addContainerGap(66, Short.MAX_VALUE)))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -815,36 +725,36 @@ public class PanelUsuario extends javax.swing.JPanel {
             }
         });
 
-        radioBotonTipoUsuario.setBackground(new java.awt.Color(204, 204, 204));
-        selectorFiltrado.add(radioBotonTipoUsuario);
-        radioBotonTipoUsuario.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
-        radioBotonTipoUsuario.setForeground(new java.awt.Color(0, 102, 153));
-        radioBotonTipoUsuario.setText("Tipo de Usuario");
-        radioBotonTipoUsuario.addActionListener(new java.awt.event.ActionListener() {
+        radioBotonNIT.setBackground(new java.awt.Color(204, 204, 204));
+        selectorFiltrado.add(radioBotonNIT);
+        radioBotonNIT.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        radioBotonNIT.setForeground(new java.awt.Color(0, 102, 153));
+        radioBotonNIT.setText("NIT");
+        radioBotonNIT.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioBotonTipoUsuarioActionPerformed(evt);
+                radioBotonNITActionPerformed(evt);
             }
         });
 
-        radioBotonEstado.setBackground(new java.awt.Color(204, 204, 204));
-        selectorFiltrado.add(radioBotonEstado);
-        radioBotonEstado.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
-        radioBotonEstado.setForeground(new java.awt.Color(0, 102, 153));
-        radioBotonEstado.setText("Estado");
-        radioBotonEstado.addActionListener(new java.awt.event.ActionListener() {
+        radioBotonDPI.setBackground(new java.awt.Color(204, 204, 204));
+        selectorFiltrado.add(radioBotonDPI);
+        radioBotonDPI.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        radioBotonDPI.setForeground(new java.awt.Color(0, 102, 153));
+        radioBotonDPI.setText("DPI");
+        radioBotonDPI.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioBotonEstadoActionPerformed(evt);
+                radioBotonDPIActionPerformed(evt);
             }
         });
 
-        radioBotonNombreUsuario.setBackground(new java.awt.Color(204, 204, 204));
-        selectorFiltrado.add(radioBotonNombreUsuario);
-        radioBotonNombreUsuario.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
-        radioBotonNombreUsuario.setForeground(new java.awt.Color(0, 102, 153));
-        radioBotonNombreUsuario.setText("Nombre De Usuario");
-        radioBotonNombreUsuario.addActionListener(new java.awt.event.ActionListener() {
+        radioBotonCiudad.setBackground(new java.awt.Color(204, 204, 204));
+        selectorFiltrado.add(radioBotonCiudad);
+        radioBotonCiudad.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        radioBotonCiudad.setForeground(new java.awt.Color(0, 102, 153));
+        radioBotonCiudad.setText("Ciudad");
+        radioBotonCiudad.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioBotonNombreUsuarioActionPerformed(evt);
+                radioBotonCiudadActionPerformed(evt);
             }
         });
 
@@ -871,11 +781,11 @@ public class PanelUsuario extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(radioBotonPrimerApellido)
                 .addGap(18, 18, 18)
-                .addComponent(radioBotonNombreUsuario)
+                .addComponent(radioBotonCiudad)
                 .addGap(18, 18, 18)
-                .addComponent(radioBotonTipoUsuario)
+                .addComponent(radioBotonNIT)
                 .addGap(18, 18, 18)
-                .addComponent(radioBotonEstado)
+                .addComponent(radioBotonDPI)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -886,9 +796,9 @@ public class PanelUsuario extends javax.swing.JPanel {
                     .addComponent(jLabel1)
                     .addComponent(radioBotonPrimerApellido)
                     .addComponent(radioBotonPrimerNombre)
-                    .addComponent(radioBotonNombreUsuario)
-                    .addComponent(radioBotonTipoUsuario)
-                    .addComponent(radioBotonEstado))
+                    .addComponent(radioBotonCiudad)
+                    .addComponent(radioBotonNIT)
+                    .addComponent(radioBotonDPI))
                 .addContainerGap())
         );
 
@@ -921,7 +831,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         add(jSeparator1, gridBagConstraints);
 
         textoBusqueda.setForeground(new java.awt.Color(0, 102, 153));
-        textoBusqueda.setBordeColorFocus(new java.awt.Color(51, 153, 0));
+        textoBusqueda.setBordeColorFocus(new java.awt.Color(0, 153, 255));
         textoBusqueda.setBotonColor(new java.awt.Color(255, 255, 255));
         textoBusqueda.setPlaceholder("Realizar Busqueda");
         textoBusqueda.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -947,30 +857,23 @@ public class PanelUsuario extends javax.swing.JPanel {
     Metodo encargado de inicializar y mostrar el JDialog CreadorModificadorUsuario mediante el llamado al metodo mostrarCreadorModificadorUsuario
     */
     private void botonNuevoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonNuevoUsuarioActionPerformed
-        this.mostrarCreadorModificadorUsuario(0);
+        this.mostrarCreadorModificadorCliente(0);
     }//GEN-LAST:event_botonNuevoUsuarioActionPerformed
     
+  
     //Metodo encargado de limitar la cantidad de caracteres que se pueden ingresar en un campo de texto
-    private void textoContrasenaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoContrasenaKeyTyped
-        if (textoContrasena.getText().length() == 25) {
+    private void textoNITKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoNITKeyTyped
+        if (textoNIT.getText().length() == 9) {
             evt.consume();
-            etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 25 caracteres en el campo de contraseña");
+            etiquetaAlertaCliente.setText("Solo se permite el ingreso de 9 caracteres en el campo de NIT");
         }
-    }//GEN-LAST:event_textoContrasenaKeyTyped
-   
-    //Metodo encargado de limitar la cantidad de caracteres que se pueden ingresar en un campo de texto
-    private void textoNombreUsuarioKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoNombreUsuarioKeyTyped
-        if (textoNombreUsuario.getText().length() == 25) {
-            evt.consume();
-            etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 25 caracteres en el campo de nombre de usuario");
-        }
-    }//GEN-LAST:event_textoNombreUsuarioKeyTyped
+    }//GEN-LAST:event_textoNITKeyTyped
     
     //Metodo encargado de limitar la cantidad de caracteres que se pueden ingresar en un campo de texto
     private void textoNombresKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoNombresKeyTyped
         if (textoNombres.getText().length() == 30) {
             evt.consume();
-            etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombres");
+            etiquetaAlertaCliente.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombres");
         }
     }//GEN-LAST:event_textoNombresKeyTyped
     
@@ -978,96 +881,63 @@ public class PanelUsuario extends javax.swing.JPanel {
     private void textoApellidosKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoApellidosKeyTyped
         if (textoApellidos.getText().length() == 30) {
             evt.consume();
-            etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 30 caracteres en el campo de apellidos");
+            etiquetaAlertaCliente.setText("Solo se permite el ingreso de 30 caracteres en el campo de apellidos");
         }
     }//GEN-LAST:event_textoApellidosKeyTyped
 
-    /*
-    Metodo encargado de mostrar y ocultar la contrasena. Modifica la imagen del boton correspondiente y cambia
-    el valor de la variable booleana contraenaOculta en base a una comparacion que detecta si la contrasena 
-    actualmente se encuentra oculta o no.
-    */
-    private void botonVerContrasenaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonVerContrasenaActionPerformed
-        if(contrasenaOculta){
-            botonVerContrasena.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/ocultar.png")));
-            textoContrasena.setEchoChar((char)0);
-            contrasenaOculta = false;
-        }
-        else{
-            botonVerContrasena.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/ver.png")));
-            textoContrasena.setEchoChar('*');
-            contrasenaOculta = true;
-        }
-    }//GEN-LAST:event_botonVerContrasenaActionPerformed
-
-    //Metodo encargado de cerrar el JDialog CrearModificarUsuario.
+    //Metodo encargado de cerrar el JDialog CrearModificarCliente
     private void botonCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCancelarActionPerformed
-        CrearModificarUsuario.dispose();
-        this.limpiarCreadorModificadorUsuario();
+        CrearModificarCliente.dispose();
+        this.limpiarCreadorModificadorCliente();
         this.limpiarAlertas();
     }//GEN-LAST:event_botonCancelarActionPerformed
 
     /*
-    Metodo encargado de la creacion o modificacion de un usuario. Valida que los campos obligatorios se encuentren
+    Metodo encargado de la creacion o modificacion de un cliente. Valida que los campos obligatorios se encuentren
     llenos, recupera la informacion ingresada y la asigna a las variables correspondientes, posteriormente realiza 
     validaciones y establece si se crea o se modifica un usuario. Por ultimo limpia todas las areas de texto y 
     cierra el JDialog
     */
     private void botonCrearModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearModificarActionPerformed
-        if(textoNombres.getText().isEmpty() || textoApellidos.getText().isEmpty() || textoNombreUsuario.getText().isEmpty() || textoContrasena.getText().isEmpty()){
-            etiquetaAlertaUsuario.setText("Se deben llenar todos los campos obligatorios");
+        if(textoNombres.getText().isEmpty() || textoApellidos.getText().isEmpty() || textoNIT.getText().isEmpty() || textoDPI.getText().equals("    -     -    ") || textoNIT.getText().isEmpty()){
+            etiquetaAlertaCliente.setText("Se deben llenar todos los campos obligatorios");
         }
         else{
             nombres = textoNombres.getText();
             apellidos = textoApellidos.getText();
-            nombreUsuario = textoNombreUsuario.getText();
-            contrasena = textoContrasena.getText();
-            tipo = selectorTipoUsuario.getSelectedItem().toString();
-            usuario = new Usuario(nombres, apellidos, nombreUsuario, contrasena, tipo, true);
+            direccion = textoCiudad.getText();
+            DPI = textoDPI.getText();
+            NIT = textoNIT.getText();
+            cliente = new Cliente(nombres, apellidos, direccion, DPI, NIT);
             if(botonCrearModificar.getText().equals("CREAR")){
-                mensaje = manejadorDB.crearNuevoUsuario(usuario); 
+                mensaje = manejadorDB.crearNuevoCliente(cliente); 
             } 
             else{
-                mensaje = manejadorDB.modificarUsuario(usuario);
+                mensaje = manejadorDB.modificarCliente(cliente);
             }
-            if(mensaje.equals("El nombre de usuario ya se encuentra registrado en el sistema")){
-                    etiquetaAlertaUsuario.setText(mensaje);
-            }
-            else{
-                this.finalizarAccion();
-                this.limpiarCreadorModificadorUsuario();
-                CrearModificarUsuario.setVisible(false);
-            }
+            this.finalizarAccion();
+            this.limpiarCreadorModificadorCliente();
+            CrearModificarCliente.setVisible(false);
         }
     }//GEN-LAST:event_botonCrearModificarActionPerformed
 
     /*
-    Metodo encargado de inicializar, llenar los campos de texto y mostrar el JDialog CreadorModificadorUsuario mediante el 
-    llamado al metodo mostrarCreadorModificadorUsuario. Primeramente valida que se encuentra un usuario seleccionado y recupera
-    el objeto Usuario del usuario seleccionado para obtener sus atributos y llenar los campos de texto.
+    Metodo encargado de inicializar, llenar los campos de texto y mostrar el JDialog CreadorModificadorCliente mediante el 
+    llamado al metodo mostrarCreadorModificadorCliente. Primeramente valida que se encuentra un usuario seleccionado y recupera
+    el objeto Cliente del cliente seleccionado para obtener sus atributos y llenar los campos de texto.
     */
     private void botonModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarActionPerformed
-        if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a modificar");
+        if(this.tablaClientes.getSelectedRow() == -1){
+            alertaTabla.setText("Seleccione el cliente a modificar");
         }
         else{
-            usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
-            textoNombres.setText(usuario.getNombres());
-            textoApellidos.setText(usuario.getApellidos());
-            textoNombreUsuario.setText(usuario.getNombreUsuario());
-            textoContrasena.setText(usuario.getContrasena());
-            switch (usuario.getTipo()){
-                case ADMINISTRADOR:
-                    selectorTipoUsuario.setSelectedIndex(0);
-                break;
-                case OPERADOR:
-                    selectorTipoUsuario.setSelectedIndex(1);
-                break;
-                default:
-                    selectorTipoUsuario.setSelectedIndex(2);
-                break;
-            }
-            this.mostrarCreadorModificadorUsuario(1);
+            cliente = listadoClientes.get(this.tablaClientes.getSelectedRow());
+            textoNombres.setText(cliente.getNombre());
+            textoApellidos.setText(cliente.getApellido());
+            textoCiudad.setText(cliente.getDireccion());
+            textoDPI.setText(cliente.getDPI());
+            textoNIT.setText(cliente.getNIT());
+            this.mostrarCreadorModificadorCliente(1);
         }
     }//GEN-LAST:event_botonModificarActionPerformed
     /*
@@ -1076,63 +946,6 @@ public class PanelUsuario extends javax.swing.JPanel {
     private void botonAceptarMensajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAceptarMensajeActionPerformed
         MostradorMensajes.dispose();
     }//GEN-LAST:event_botonAceptarMensajeActionPerformed
-    /*
-    Metodo encargado de activar un usuario seleccionado. Valida que exista un usuario seleccionado y valida que el 
-    usuario no se encuentre activado, si alguna validacion no se cumple se lanza un mensaje de error, de lo contrario
-    se llama al metodo modificarUsuario para proceder con la activacion.
-    */
-    private void botonActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonActivarActionPerformed
-        if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a activar");
-        }
-        else{
-            usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
-            if(usuario.isActivo()){
-                alertaTabla.setText("El usuario ya se encuentra activado");
-            }
-            else{
-                usuario.setActivo(true);
-                mensaje = manejadorDB.modificarUsuario(usuario);
-                this.finalizarAccion();
-            }
-        }
-    }//GEN-LAST:event_botonActivarActionPerformed
-    /*
-    Metodo encargado de eliminar un usuario seleccionado. Valida que exista un usuario seleccionado si la
-    validacion no se cumple se lanza un mensaje de error, de lo contrario se llama al metodo eliminarUsuario
-    para proceder con la eliminacion.
-    */
-    private void botonEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonEliminarActionPerformed
-         if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a eliminar");
-        }
-        else{
-             usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
-             mensaje = manejadorDB.eliminarUsuario(usuario);
-             this.finalizarAccion();
-        }
-    }//GEN-LAST:event_botonEliminarActionPerformed
-    /*
-    Metodo encargado de desactivar un usuario seleccionado. Valida que exista un usuario seleccionado y valida que el 
-    usuario se encuentre activado, si alguna validacion no se cumple se lanza un mensaje de error, de lo contrario
-    se llama al metodo modificarUsuario para proceder con la desactivacion.
-    */
-    private void botonDesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonDesactivarActionPerformed
-        if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a desactivar");
-        }
-         else{
-            usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
-            if(!usuario.isActivo()){
-                alertaTabla.setText("El usuario ya se encuentra desactivado");
-            }
-            else{
-                usuario.setActivo(false);
-                mensaje = manejadorDB.modificarUsuario(usuario);
-                this.finalizarAccion();
-            }
-        }
-    }//GEN-LAST:event_botonDesactivarActionPerformed
 
     /*
     Metodo encargado de mostrar solo 45 registros o todos los registros de la DB basado en el estado del boton
@@ -1142,11 +955,11 @@ public class PanelUsuario extends javax.swing.JPanel {
         if(selectorMostrarTodosLosRegistros.isSelected()){
             selectorFiltrado.clearSelection();
             textoBusqueda.setText("");
-            this.obtenerUsuarios(1);
+            this.obtenerClientes(1);
             this.limpiarAlertas();
         }
         else{
-            this.obtenerUsuarios(0);
+            this.obtenerClientes(0);
             this.limpiarAlertas();
         }
     }//GEN-LAST:event_selectorMostrarTodosLosRegistrosItemStateChanged
@@ -1155,14 +968,14 @@ public class PanelUsuario extends javax.swing.JPanel {
     seleccionado un criterio de busqueda y posteriormente llama al metdodo establecerFiltroBusqueda.
     */
     private void textoBusquedaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoBusquedaKeyReleased
-        if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonNombreUsuario.isSelected() && !radioBotonTipoUsuario.isSelected() && !radioBotonEstado.isSelected()){
+        if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonCiudad.isSelected() && !radioBotonNIT.isSelected() && !radioBotonDPI.isSelected()){
             alertaTabla.setText("No se ha seleccionado un criterio de filtrado");
             textoBusqueda.setText("");
         }
         else{  
             patronBusqueda = textoBusqueda.getText();
             if(patronBusqueda.equals("")){
-                this.obtenerUsuarios(0);
+                this.obtenerClientes(0);
                 this.limpiarAlertas();
             }
             else{
@@ -1182,35 +995,38 @@ public class PanelUsuario extends javax.swing.JPanel {
     }//GEN-LAST:event_radioBotonPrimerApellidoActionPerformed
 
     //Metodo encargado de limpiar de area de busqueda
-    private void radioBotonNombreUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonNombreUsuarioActionPerformed
+    private void radioBotonCiudadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonCiudadActionPerformed
         textoBusqueda.setText("");
-    }//GEN-LAST:event_radioBotonNombreUsuarioActionPerformed
+    }//GEN-LAST:event_radioBotonCiudadActionPerformed
 
     //Metodo encargado de limpiar de area de busqueda
-    private void radioBotonTipoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonTipoUsuarioActionPerformed
+    private void radioBotonNITActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonNITActionPerformed
         textoBusqueda.setText("");
-    }//GEN-LAST:event_radioBotonTipoUsuarioActionPerformed
+    }//GEN-LAST:event_radioBotonNITActionPerformed
 
     //Metodo encargado de limpiar de area de busqueda
-    private void radioBotonEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonEstadoActionPerformed
+    private void radioBotonDPIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioBotonDPIActionPerformed
         textoBusqueda.setText("");
-    }//GEN-LAST:event_radioBotonEstadoActionPerformed
+    }//GEN-LAST:event_radioBotonDPIActionPerformed
+
+    private void textoCiudadKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoCiudadKeyTyped
+         if (textoCiudad.getText().length() == 25) {
+            evt.consume();
+            etiquetaAlertaCliente.setText("Solo se permite el ingreso de 25 caracteres en el campo de direccion");
+        }
+    }//GEN-LAST:event_textoCiudadKeyTyped
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JDialog CrearModificarUsuario;
+    private javax.swing.JDialog CrearModificarCliente;
     private javax.swing.JDialog MostradorMensajes;
     private javax.swing.JLabel alertaTabla;
     private rojerusan.RSButtonIconI botonAceptarMensaje;
-    private rojerusan.RSButtonIconI botonActivar;
     private rojerusan.RSButtonIconI botonBuscar;
     private rojerusan.RSButtonIconI botonCancelar;
     private rojerusan.RSButtonIconI botonCrearModificar;
-    private rojerusan.RSButtonIconI botonDesactivar;
-    private rojerusan.RSButtonIconI botonEliminar;
     private rojerusan.RSButtonIconI botonModificar;
     private rojerusan.RSButtonIconI botonNuevoUsuario;
-    private rojeru_san.RSButton botonVerContrasena;
-    private javax.swing.JLabel etiquetaAlertaUsuario;
+    private javax.swing.JLabel etiquetaAlertaCliente;
     private javax.swing.JLabel etiquetaMensaje;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -1235,19 +1051,19 @@ public class PanelUsuario extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JRadioButton radioBotonEstado;
-    private javax.swing.JRadioButton radioBotonNombreUsuario;
+    private javax.swing.JRadioButton radioBotonCiudad;
+    private javax.swing.JRadioButton radioBotonDPI;
+    private javax.swing.JRadioButton radioBotonNIT;
     private javax.swing.JRadioButton radioBotonPrimerApellido;
     private javax.swing.JRadioButton radioBotonPrimerNombre;
-    private javax.swing.JRadioButton radioBotonTipoUsuario;
     private javax.swing.ButtonGroup selectorFiltrado;
     private javax.swing.JCheckBox selectorMostrarTodosLosRegistros;
-    private javax.swing.JComboBox<String> selectorTipoUsuario;
-    private javax.swing.JTable tablaUsuarios;
+    private javax.swing.JTable tablaClientes;
     private javax.swing.JTextField textoApellidos;
     private rojeru_san.RSMTextFull textoBusqueda;
-    private javax.swing.JPasswordField textoContrasena;
-    private javax.swing.JTextField textoNombreUsuario;
+    private javax.swing.JTextField textoCiudad;
+    private javax.swing.JFormattedTextField textoDPI;
+    private javax.swing.JTextField textoNIT;
     private javax.swing.JTextField textoNombres;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables

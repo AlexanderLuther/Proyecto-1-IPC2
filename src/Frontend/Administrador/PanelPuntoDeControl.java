@@ -1,4 +1,4 @@
-package Frontend;
+package Frontend.Administrador;
 import Backend.ManejadorBusqueda;
 import Backend.ManejadorDBSM;
 import Backend.PuntoDeControl;

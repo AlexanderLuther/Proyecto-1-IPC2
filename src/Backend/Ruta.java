@@ -8,14 +8,12 @@ public class Ruta {
     private String codigo;
     private String nombre;
     private String destino;
-    private double cuotaDestino;
     private boolean activa;
 
-    public Ruta(String codigo, String nombre, String destino, double cuotaDestino, boolean activa) {
+    public Ruta(String codigo, String nombre, String destino, boolean activa) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.destino = destino;
-        this.cuotaDestino = cuotaDestino;
         this.activa = activa;
     }
 
@@ -41,14 +39,6 @@ public class Ruta {
 
     public void setDestino(String destino) {
         this.destino = destino;
-    }
-
-    public double getCuotaDestino() {
-        return cuotaDestino;
-    }
-
-    public void setCuotaDestino(double cuotaDestino) {
-        this.cuotaDestino = cuotaDestino;
     }
 
     public boolean isActiva() {

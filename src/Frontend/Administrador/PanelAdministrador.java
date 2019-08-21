@@ -1,10 +1,11 @@
 
-package Frontend;
+package Frontend.Administrador;
 import Backend.CambiadorPaneles;
 import Backend.ManejadorDBSM;
 import Backend.Tarifa;
+import Frontend.PanelInicio;
+import Frontend.VentanaPrincipal;
 import java.sql.ResultSet;
-import javax.swing.JPanel;
 /**
  *
  * @author helmuthluther
@@ -21,6 +22,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
     private double tarifaOperacion;
     private double precioPorLibra;
     private double cuotaPriorizacion;
+    private double cuotaDestino;
     private Tarifa tarifa;
     ResultSet resultado;
     
@@ -81,6 +83,10 @@ public class PanelAdministrador extends javax.swing.JPanel {
         jLabel13 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        textoCuotaDestino = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
         jPanel13 = new javax.swing.JPanel();
         botonCancelarTarifa = new rojerusan.RSButtonIconI();
         botonAceptarTarifa = new rojerusan.RSButtonIconI();
@@ -107,7 +113,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
 
         MostradorMensajes.setTitle("Mensaje");
         MostradorMensajes.setBackground(new java.awt.Color(204, 204, 204));
-        MostradorMensajes.setMinimumSize(new java.awt.Dimension(406, 200));
+        MostradorMensajes.setMinimumSize(new java.awt.Dimension(600, 200));
         MostradorMensajes.setModal(true);
         MostradorMensajes.setResizable(false);
 
@@ -122,7 +128,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -153,28 +159,27 @@ public class PanelAdministrador extends javax.swing.JPanel {
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addGap(200, 200, 200)
+                .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel14Layout.createSequentialGroup()
                     .addGap(3, 3, 3)
-                    .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(etiquetaMensaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
-                            .addGap(0, 107, Short.MAX_VALUE)
-                            .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(93, 93, 93)))
+                    .addComponent(etiquetaMensaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGap(3, 3, 3)))
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 118, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addContainerGap(53, Short.MAX_VALUE)
+                .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
             .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel14Layout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(etiquetaMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(botonAceptarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(25, Short.MAX_VALUE)))
+                    .addContainerGap(71, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout MostradorMensajesLayout = new javax.swing.GroupLayout(MostradorMensajes.getContentPane());
@@ -195,8 +200,10 @@ public class PanelAdministrador extends javax.swing.JPanel {
 
         ReceptorTarifas.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         ReceptorTarifas.setTitle("Establecer Tarifas Globales");
-        ReceptorTarifas.setMinimumSize(new java.awt.Dimension(628, 516));
+        ReceptorTarifas.setMaximumSize(new java.awt.Dimension(637, 598));
+        ReceptorTarifas.setMinimumSize(new java.awt.Dimension(637, 598));
         ReceptorTarifas.setModal(true);
+        ReceptorTarifas.setPreferredSize(new java.awt.Dimension(637, 598));
         ReceptorTarifas.setResizable(false);
 
         jPanel6.setBackground(new java.awt.Color(204, 204, 204));
@@ -215,7 +222,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 616, Short.MAX_VALUE)
+                .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -282,14 +289,36 @@ public class PanelAdministrador extends javax.swing.JPanel {
         jLabel25.setForeground(new java.awt.Color(0, 102, 153));
         jLabel25.setText("Q");
 
+        jLabel15.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(0, 102, 153));
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/billete.png"))); // NOI18N
+        jLabel15.setText("Cuota de Destino");
+
+        textoCuotaDestino.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
+        textoCuotaDestino.setForeground(new java.awt.Color(0, 102, 153));
+
+        jLabel17.setFont(new java.awt.Font("Roboto", 1, 16)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(0, 102, 153));
+        jLabel17.setText("Q");
+
+        jLabel22.setFont(new java.awt.Font("DejaVu Sans", 0, 16)); // NOI18N
+        jLabel22.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel22.setText("*");
+
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(etiquetaAlertaTarifa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jLabel22)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel15)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
+                        .addComponent(jLabel17)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textoCuotaDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel16)
@@ -307,7 +336,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
                                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel12)
                                     .addComponent(jLabel14))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                                         .addComponent(jLabel13)
@@ -316,7 +345,8 @@ public class PanelAdministrador extends javax.swing.JPanel {
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                                         .addComponent(jLabel25)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(textoTarifaOperacion, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                                        .addComponent(textoTarifaOperacion, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                    .addComponent(etiquetaAlertaTarifa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel9Layout.setVerticalGroup(
@@ -340,7 +370,13 @@ public class PanelAdministrador extends javax.swing.JPanel {
                     .addComponent(jLabel21)
                     .addComponent(textoCuotaPriorizacion, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13))
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(textoCuotaDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel17)
+                    .addComponent(jLabel22))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
                 .addComponent(etiquetaAlertaTarifa, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -406,7 +442,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(50, 50, 50))
         );
@@ -744,6 +780,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
         textoTarifaOperacion.setText(String.valueOf(tarifa.getTarifaOperacionGlobal()));
         textoPrecioPorLiba.setText(String.valueOf(tarifa.getPrecioLibraGlobal()));
         textoCuotaPriorizacion.setText(String.valueOf(tarifa.getCuotaPriorizacionGlobal()));
+        textoCuotaDestino.setText(String.valueOf(tarifa.getCuotaDestinoGlobal()));
         ReceptorTarifas.setVisible(true);
     }//GEN-LAST:event_botonTarifaActionPerformed
 
@@ -793,7 +830,8 @@ public class PanelAdministrador extends javax.swing.JPanel {
                 tarifaOperacion = Double.parseDouble(textoTarifaOperacion.getText());
                 precioPorLibra = Double.parseDouble(textoPrecioPorLiba.getText());
                 cuotaPriorizacion = Double.parseDouble(textoCuotaPriorizacion.getText());
-                tarifa = new Tarifa(tarifaOperacion, precioPorLibra, cuotaPriorizacion);
+                cuotaDestino = Double.parseDouble(textoCuotaDestino.getText());
+                tarifa = new Tarifa(tarifaOperacion, precioPorLibra, cuotaPriorizacion, cuotaDestino);
                 manejadorDB.establecerTarifas(tarifa, false);
                 this.lanzarMensaje("Tarifas establecidas exitosamente");
                 this.ReceptorTarifas.setVisible(false);
@@ -829,10 +867,13 @@ public class PanelAdministrador extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JPanel jPanel13;
@@ -849,6 +890,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
     private javax.swing.JPanel panelNuevo;
     private javax.swing.JPanel panelPrincipal;
     private javax.swing.JPanel panelPrincipalAdministrador;
+    private javax.swing.JTextField textoCuotaDestino;
     private javax.swing.JTextField textoCuotaPriorizacion;
     private javax.swing.JTextField textoPrecioPorLiba;
     private javax.swing.JTextField textoTarifaOperacion;

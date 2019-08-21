@@ -10,9 +10,10 @@ public class ManejadorBusqueda {
     ManejadorDBSM manejadorDB = new ManejadorDBSM();
     List<Usuario> listadoUsuarios = new ArrayList<>();
     List<Usuario> listadoUsuariosFiltrado = new ArrayList<>();
-    
     List<Ruta> listadoRutas = new ArrayList<>();
     List<Ruta> listadoRutasFiltrado = new ArrayList<>();
+    List<Cliente> listadoClientes = new ArrayList<>();
+    List<Cliente> listadoClientesFiltrado = new ArrayList<>();
     
     //==========================================================================USUARIOS==========================================================================
     public void obtenerUsuarios(int tipo){
@@ -93,6 +94,12 @@ public class ManejadorBusqueda {
         listadoRutas.clear();
         listadoRutas = this.manejadorDB.obtenerListadoRutas("SELECT* FROM Ruta;", 1);
     }
+    
+    public void obtenerRutasSinDuplicados(){
+        listadoRutasFiltrado.clear();
+        listadoRutas.clear();
+        listadoRutas = this.manejadorDB.obtenerListadoRutas("SELECT DISTINCT Destino FROM Ruta WHERE Activa = TRUE;", 1);
+    }
       
     public List busquedaRutaPorNombre(String patronBusqueda){
         this.obtenerRutas();
@@ -104,8 +111,13 @@ public class ManejadorBusqueda {
         return listadoRutasFiltrado;
     }  
     
-    public List busquedaRutaPorDestino(String patronBusqueda){
-        this.obtenerRutas();
+    public List busquedaRutaPorDestino(String patronBusqueda, int tipo){
+        if(tipo == 0){
+           this.obtenerRutas(); 
+        }
+        else{
+            this.obtenerRutasSinDuplicados();
+        }
         for(int i = 0; i < listadoRutas.size(); i++){
             if(listadoRutas.get(i).getDestino().startsWith(patronBusqueda)){
                 listadoRutasFiltrado.add(listadoRutas.get(i));
@@ -133,7 +145,62 @@ public class ManejadorBusqueda {
         return listadoRutasFiltrado;
     }
     
-   
+    //==========================================================================CLIENTES==========================================================================
+        public void obtenerClientes(){
+        listadoClientesFiltrado.clear();
+        listadoClientes.clear();
+        listadoClientes = this.manejadorDB.obtenerListadoClientes("SELECT* FROM Cliente;", 1);    
+    }
     
+    public List busquedaClientePorNombres(String patronBusqueda){
+        this.obtenerClientes();
+        for(int i = 0; i < listadoClientes.size(); i++){
+            if(listadoClientes.get(i).getNombre().startsWith(patronBusqueda)){
+                listadoClientesFiltrado.add(listadoClientes.get(i));
+            }
+        }
+        return listadoClientesFiltrado;
+    }
+    
+    public List busquedaClientePorApellidos(String patronBusqueda){
+        this.obtenerClientes();
+        for(int i = 0; i < listadoClientes.size(); i++){
+            if(listadoClientes.get(i).getApellido().startsWith(patronBusqueda)){
+                listadoClientesFiltrado.add(listadoClientes.get(i));
+            }
+        }
+        return listadoClientesFiltrado;
+    }
+    
+    public List busquedaClientePorCiudad(String patronBusqueda){
+        this.obtenerClientes();
+        for(int i = 0; i < listadoClientes.size(); i++){
+            if(listadoClientes.get(i).getDireccion().startsWith(patronBusqueda)){
+                listadoClientesFiltrado.add(listadoClientes.get(i));
+            }
+        }
+        return listadoClientesFiltrado;
+    }
+    
+    public List busquedaClientePorNIT(String patronBusqueda){
+        this.obtenerClientes();
+        for(int i = 0; i < listadoClientes.size(); i++){
+            if(listadoClientes.get(i).getNIT().startsWith(patronBusqueda)){
+                listadoClientesFiltrado.add(listadoClientes.get(i));
+            }
+        }
+        return listadoClientesFiltrado;
+    }
+    
+    public List busquedaClientePorDPI(String patronBusqueda){
+        this.obtenerClientes();
+        for(int i = 0; i < listadoClientes.size(); i++){
+            if(listadoClientes.get(i).getDPI().startsWith(patronBusqueda)){
+                listadoClientesFiltrado.add(listadoClientes.get(i));
+            }
+        }
+        return listadoClientesFiltrado;
+    }
+     
      
 }

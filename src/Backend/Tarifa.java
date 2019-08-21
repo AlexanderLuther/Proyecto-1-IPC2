@@ -8,11 +8,13 @@ public class Tarifa {
     private double tarifaOperacionGlobal;
     private double precioLibraGlobal;
     private double cuotaPriorizacionGlobal;
+    private double cuotaDestinoGlobal;
 
-    public Tarifa(double tarifaOperacionGlobal, double precioLibraGlobal, double cuotaPriorizacionGlobal) {
+    public Tarifa(double tarifaOperacionGlobal, double precioLibraGlobal, double cuotaPriorizacionGlobal, double cuotaDestinoGlobal) {
         this.tarifaOperacionGlobal = tarifaOperacionGlobal;
         this.precioLibraGlobal = precioLibraGlobal;
         this.cuotaPriorizacionGlobal = cuotaPriorizacionGlobal;
+        this.cuotaDestinoGlobal = cuotaDestinoGlobal;
     }
 
     public double getTarifaOperacionGlobal() {
@@ -38,4 +40,14 @@ public class Tarifa {
     public void setCuotaPriorizacionGlobal(double cuotaPriorizacionGlobal) {
         this.cuotaPriorizacionGlobal = cuotaPriorizacionGlobal;
     }
+
+    public double getCuotaDestinoGlobal() {
+        return cuotaDestinoGlobal;
+    }
+
+    public void setCuotaDestinoGlobal(double cuotaDestinoGlobal) {
+        this.cuotaDestinoGlobal = cuotaDestinoGlobal;
+    }
+    
+    
 }

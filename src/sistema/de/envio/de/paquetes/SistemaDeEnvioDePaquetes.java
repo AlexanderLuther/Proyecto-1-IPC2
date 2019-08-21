@@ -1,6 +1,5 @@
 package sistema.de.envio.de.paquetes;
 import Backend.ManejadorDBSM;
-import Backend.Usuario;
 import Frontend.VentanaPrincipal;
 import java.sql.ResultSet;
 import java.sql.SQLException;

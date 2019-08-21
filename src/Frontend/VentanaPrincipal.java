@@ -1,4 +1,6 @@
 package Frontend;
+import Frontend.Recepcionista.PanelRecepcionista;
+import Frontend.Administrador.PanelAdministrador;
 import Backend.CambiadorPaneles;
 import Backend.ManejadorDBSM;
 import Backend.Tarifa;
@@ -33,6 +35,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private double tarifaOperacion;
     private double precioPorLibra;
     private double cuotaPriorizacion;
+    private double cuotaDestino;
     
     public VentanaPrincipal() {
         this.setExtendedState(MAXIMIZED_BOTH);
@@ -41,7 +44,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         cambiarPanel = new CambiadorPaneles();
         panelAdministrador = new PanelAdministrador(this);
         panelOperador = new PanelOperador();
-        panelRecepcionista = new PanelRecepcionista();
+        panelRecepcionista = new PanelRecepcionista(this);
         initComponents();
     }
    
@@ -103,6 +106,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             break;
             case RECEPCIONISTA:
                 cambiarPanel.cambiarPanel(panelPrincipal, panelRecepcionista);
+                panelRecepcionista.establecerFondo();
+                panelRecepcionista.estableceUsuario(nombreUsuario);
             break;
             default:
                 cambiarPanel.cambiarPanel(panelPrincipal, panelOperador);
@@ -181,6 +186,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
+        jLabel26 = new javax.swing.JLabel();
+        jLabel27 = new javax.swing.JLabel();
+        textoCuotaDestino = new javax.swing.JTextField();
+        jLabel28 = new javax.swing.JLabel();
         jPanel13 = new javax.swing.JPanel();
         botonCancelarTarifa = new rojerusan.RSButtonIconI();
         botonAceptarTarifa = new rojerusan.RSButtonIconI();
@@ -678,7 +687,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         MostradorMensajes.setModal(true);
         MostradorMensajes.setResizable(false);
 
-        jPanel1.setBackground(new java.awt.Color(0, 153, 255));
+        jPanel1.setBackground(new java.awt.Color(51, 153, 0));
 
         jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/mensaje.png"))); // NOI18N
@@ -687,7 +696,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                 .addContainerGap())
@@ -706,7 +715,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         etiquetaMensaje.setForeground(new java.awt.Color(0, 153, 255));
         etiquetaMensaje.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        botonAceptarMensaje.setBackground(new java.awt.Color(0, 153, 255));
+        botonAceptarMensaje.setBackground(new java.awt.Color(51, 153, 0));
         botonAceptarMensaje.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/ok.png"))); // NOI18N
         botonAceptarMensaje.setText("ACEPTAR");
         botonAceptarMensaje.addActionListener(new java.awt.event.ActionListener() {
@@ -761,7 +770,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         ReceptorTarifas.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         ReceptorTarifas.setTitle("Establecer Tarifas Globales");
-        ReceptorTarifas.setMinimumSize(new java.awt.Dimension(628, 516));
+        ReceptorTarifas.setMinimumSize(new java.awt.Dimension(628, 596));
         ReceptorTarifas.setModal(true);
         ReceptorTarifas.setResizable(false);
 
@@ -810,7 +819,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(0, 102, 153));
         jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/billete.png"))); // NOI18N
-        jLabel12.setText("Cuota de Priorizacion");
+        jLabel12.setText("Cuota de Priorizacion:");
 
         jLabel14.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(0, 102, 153));
@@ -856,32 +865,57 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel25.setForeground(new java.awt.Color(0, 102, 153));
         jLabel25.setText("Q");
 
+        jLabel26.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        jLabel26.setForeground(new java.awt.Color(0, 102, 153));
+        jLabel26.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/billete.png"))); // NOI18N
+        jLabel26.setText("Cuota de Destino:");
+
+        jLabel27.setFont(new java.awt.Font("Roboto", 1, 16)); // NOI18N
+        jLabel27.setForeground(new java.awt.Color(0, 102, 153));
+        jLabel27.setText("Q");
+
+        textoCuotaDestino.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
+        textoCuotaDestino.setForeground(new java.awt.Color(0, 102, 153));
+
+        jLabel28.setFont(new java.awt.Font("DejaVu Sans", 0, 16)); // NOI18N
+        jLabel28.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel28.setText("*");
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(etiquetaAlertaTarifa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel8Layout.createSequentialGroup()
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel16)
-                            .addComponent(jLabel20)
-                            .addComponent(jLabel21))
+                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel16)
+                                .addComponent(jLabel20)
+                                .addComponent(jLabel21))
+                            .addGroup(jPanel8Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jLabel28)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel8Layout.createSequentialGroup()
+                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel8Layout.createSequentialGroup()
+                                .addComponent(jLabel26)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel27)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(textoCuotaDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel8Layout.createSequentialGroup()
                                 .addComponent(jLabel11)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel24)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(textoPrecioPorLiba, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel8Layout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel12)
                                     .addComponent(jLabel14))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                                         .addComponent(jLabel13)
@@ -914,7 +948,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addComponent(jLabel21)
                     .addComponent(textoCuotaPriorizacion, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13))
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(textoCuotaDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel27)
+                    .addComponent(jLabel28))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(etiquetaAlertaTarifa, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -980,7 +1020,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(50, 50, 50))
         );
@@ -1186,7 +1226,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     Metodo encargado de establecer las tarifas globales en Q0.00
     */
     private void botonCancelarTarifaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCancelarTarifaActionPerformed
-        tarifa = new Tarifa(0, 0, 0);
+        tarifa = new Tarifa(0, 0, 0, 0);
         manejadorDB.establecerTarifas(tarifa, true);
         this.lanzarMensaje("Tarifas Establecidas en Q0.00");
         this.ReceptorTarifas.setVisible(false);   
@@ -1201,7 +1241,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             tarifaOperacion = Double.parseDouble(textoTarifaOperacion.getText());
             precioPorLibra = Double.parseDouble(textoPrecioPorLiba.getText());
             cuotaPriorizacion = Double.parseDouble(textoCuotaPriorizacion.getText());
-            tarifa = new Tarifa(tarifaOperacion, precioPorLibra, cuotaPriorizacion);
+            cuotaDestino = Double.parseDouble(textoCuotaDestino.getText());
+            tarifa = new Tarifa(tarifaOperacion, precioPorLibra, cuotaPriorizacion, cuotaDestino);
             manejadorDB.establecerTarifas(tarifa, true);
             this.lanzarMensaje("Tarifas establecidas exitosamente");
             this.ReceptorTarifas.setVisible(false);
@@ -1282,6 +1323,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1307,6 +1351,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField textoApellidosCreacionUsuarioAdmin;
     private javax.swing.JPasswordField textoContrasenaCreacionUsuarioAdmin;
     private javax.swing.JPasswordField textoContrasenaLogin;
+    private javax.swing.JTextField textoCuotaDestino;
     private javax.swing.JTextField textoCuotaPriorizacion;
     private javax.swing.JTextField textoNombreUsuarioCreacionUsuarioAdmin;
     private javax.swing.JTextField textoNombreUsuarioLogin;
