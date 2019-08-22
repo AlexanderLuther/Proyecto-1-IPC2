@@ -1,7 +1,8 @@
-
 package Frontend.Administrador;
 import Backend.CambiadorPaneles;
+import Backend.ManejadorBodega;
 import Backend.ManejadorDBSM;
+import Backend.ManejadorHilos;
 import Backend.Tarifa;
 import Frontend.PanelInicio;
 import Frontend.VentanaPrincipal;
@@ -13,6 +14,7 @@ import java.sql.ResultSet;
 public class PanelAdministrador extends javax.swing.JPanel {
 
     //Variables e instancias de la clase
+    private ManejadorHilos manejadorHilos;
     private ManejadorDBSM manejadorDB;
     private CambiadorPaneles cambiarPanel;
     private VentanaPrincipal ventanaPrincipal;
@@ -24,11 +26,13 @@ public class PanelAdministrador extends javax.swing.JPanel {
     private double cuotaPriorizacion;
     private double cuotaDestino;
     private Tarifa tarifa;
-    ResultSet resultado;
+    private ResultSet resultado;
+    private ManejadorBodega manejadorBodega;
     
     //Constructor de la clase
     public PanelAdministrador(VentanaPrincipal ventanaPrincipal) {
         this.manejadorDB = new ManejadorDBSM();
+        this.manejadorHilos = new ManejadorHilos();
         this.cambiarPanel = new CambiadorPaneles();
         this.ventanaPrincipal = ventanaPrincipal;
         this.panelUsuario = new PanelUsuario();
@@ -53,6 +57,12 @@ public class PanelAdministrador extends javax.swing.JPanel {
    public void establecerFondo(){
        cambiarPanel.cambiarPanel(panelPrincipal, panelInicio);
    }
+    /*
+    Metodo encargado de asignar un valor a la instancia manejadorBodega
+    */
+    public void setManejadorBodega(ManejadorBodega manejadorBodega){
+       this.manejadorBodega = manejadorBodega;
+    }
 
    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -794,8 +804,9 @@ public class PanelAdministrador extends javax.swing.JPanel {
         ventanaPrincipal.iniciarSesion(1);
     }//GEN-LAST:event_botonCambiarUsuarioActionPerformed
 
-    //Metodo encargado de salir de la aplicacion
+    //Metodo encargado de detener el hilo de bodega y salir de la aplicacion
     private void botonSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSalirActionPerformed
+        manejadorBodega.setCerrarAplicacion(true);
         System.exit(0);
     }//GEN-LAST:event_botonSalirActionPerformed
     
@@ -821,9 +832,9 @@ public class PanelAdministrador extends javax.swing.JPanel {
     la informacion en la base de datos.
     */
     private void botonAceptarTarifaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAceptarTarifaActionPerformed
-        etiquetaAlertaTarifa.setText("");
         if(textoTarifaOperacion.getText().isEmpty() || textoPrecioPorLiba.getText().isEmpty() || textoCuotaPriorizacion.getText().isEmpty()){
             etiquetaAlertaTarifa.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTarifa);
         }
         else{
             try{
@@ -838,6 +849,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
             }
             catch(NumberFormatException e){
                 etiquetaAlertaTarifa.setText("Monto ingresado no valido");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTarifa);
             }
         }
     }//GEN-LAST:event_botonAceptarTarifaActionPerformed

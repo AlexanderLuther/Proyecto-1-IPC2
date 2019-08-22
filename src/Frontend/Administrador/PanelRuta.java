@@ -3,9 +3,9 @@ import Backend.CambiadorPaneles;
 import Backend.ManejadorBusqueda;
 import Backend.ManejadorCodigo;
 import Backend.ManejadorDBSM;
+import Backend.ManejadorHilos;
 import Backend.PuntoDeControl;
 import Backend.Ruta;
-import Backend.Tarifa;
 import Backend.Usuario;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +20,7 @@ public class PanelRuta extends javax.swing.JPanel {
     //Variables e instancias de la clase.
     private ManejadorDBSM manejadorDB;
     private ManejadorBusqueda manejadorBusqueda;
+    private ManejadorHilos manejadorHilos;
     private ManejadorCodigo manejadorCodigo;
     private PanelPuntoDeControl panelPuntoDeControl;
     private CambiadorPaneles cambiarPanel;
@@ -46,6 +47,7 @@ public class PanelRuta extends javax.swing.JPanel {
     public PanelRuta() {
         this.manejadorDB = new ManejadorDBSM();
         this.manejadorBusqueda = new ManejadorBusqueda();
+        this.manejadorHilos = new ManejadorHilos();
         this.manejadorCodigo = new ManejadorCodigo();
         this.panelPuntoDeControl = new PanelPuntoDeControl(this);
         this.cambiarPanel = new CambiadorPaneles();
@@ -104,7 +106,6 @@ public class PanelRuta extends javax.swing.JPanel {
     una ruta. Por ultimo centra y hace visible el JDialog.
     */
     public void mostrarCreadorModificadorRuta(int tipo){
-        this.limpiarEtiquetasDeAlerta();
         if(tipo == 0){
             CrearModificarRuta.setTitle("Nueva Ruta");
             botonCrearModificar.setText("SIGUIENTE");
@@ -118,16 +119,6 @@ public class PanelRuta extends javax.swing.JPanel {
         }
         CrearModificarRuta.setLocationRelativeTo(this);
         CrearModificarRuta.setVisible(true);
-    }
-    
-    /*
-    Metodo encargado de limpiar las etiquetas de alerta
-    */
-    public void limpiarEtiquetasDeAlerta(){
-        etiquetaAlertaTablaRutas.setText("");
-        etiquetaAlertaRuta.setText("");
-        etiquetaAlertaPuntoDeControl.setText("");
-        etiquetaAlertaTablaOperadores.setText("");
     }
     
     /*
@@ -149,13 +140,10 @@ public class PanelRuta extends javax.swing.JPanel {
        textoCantidadPaquetesCola.setText("");
        textoTarifaOperacion.setText("");
        textoOperadorAsignado.setText("");
-       etiquetaAlertaPuntoDeControl.setText("");
        CreardorPuntoDeControl.setLocationRelativeTo(this);
        etiquetaNombrePuntoControl.setText("Nombre del Punto de Control " +contadorPuntosDeControl +" :");
        CreardorPuntoDeControl.setVisible(true);
-       etiquetaInformacionPuntoControl.setText("");
    }
-    
     
     /*
     Metodo encargado de validar el RadioBoton que se encuentra seleccionado y en base a esa validacion establecer
@@ -173,7 +161,6 @@ public class PanelRuta extends javax.swing.JPanel {
             listadoUsuarios = this.manejadorBusqueda.busquedaPorNombreUsuario(patronBusqueda, 1);    
         }
         this.llenarTablaUsuarios(listadoUsuarios);
-        this.limpiarEtiquetasDeAlerta();
     }
   
     /*
@@ -192,7 +179,6 @@ public class PanelRuta extends javax.swing.JPanel {
             listadoRutas = this.manejadorBusqueda.busquedaRutaPorEstado(patronBusqueda);    
         }
         this.llenarTablaRutas(listadoRutas);
-        this.limpiarEtiquetasDeAlerta();
     }
     
     /*
@@ -208,7 +194,7 @@ public class PanelRuta extends javax.swing.JPanel {
     Metodo encargado de remover la seleccion de todas las casillas de seleccion
     */
     public void inicializarCasillasSeleccion(){
-        textoBusquedaRutas.setText("");
+       textoBusquedaRutas.setText("");
        selectorMostrarTodasRutas.setSelected(false);
        selectorFiltrado.clearSelection();
    }
@@ -243,13 +229,14 @@ public class PanelRuta extends javax.swing.JPanel {
             }
             else{
                 contadorPuntosDeControl++;
-                this.limpiarEtiquetasDeAlerta();
-                this.etiquetaInformacionPuntoControl.setText("Punto de control " + puntoDeControl.getNombre() + " creado exitosamente");
+                etiquetaInformacionPuntoControl.setText("Punto de control " + puntoDeControl.getNombre() + " creado exitosamente");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaInformacionPuntoControl);
                 this.mostrarCreadorPuntoDeControl();
             }
         } 
         catch(NumberFormatException e){
             etiquetaAlertaPuntoDeControl.setText("Tarifa de operacion no valida");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaPuntoDeControl);
         } 
     }
     
@@ -259,7 +246,6 @@ public class PanelRuta extends javax.swing.JPanel {
     */
     public void finalizarAccion(){
         this.lanzarMensaje(mensaje);
-        this.limpiarEtiquetasDeAlerta();
         if(!radioBotonNombre.isSelected() && !radioBotonDestino.isSelected() && !radioBotonEstado.isSelected()){
             if(selectorMostrarTodasRutas.isSelected()){
                 this.obtenerRutas(1);
@@ -1370,6 +1356,7 @@ public class PanelRuta extends javax.swing.JPanel {
     private void botonVerPuntosDeControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonVerPuntosDeControlActionPerformed
         if(this.tablaRutas.getSelectedRow() == -1){
             etiquetaAlertaTablaRutas.setText("Seleccione una ruta");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
         }
         else{
             for(int i = 0; i < this.getComponentCount(); i++){
@@ -1389,6 +1376,7 @@ public class PanelRuta extends javax.swing.JPanel {
         if (textoNombreRuta.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaRuta.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombre");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaRuta);
         }
     }//GEN-LAST:event_textoNombreRutaKeyTyped
     /*
@@ -1398,6 +1386,7 @@ public class PanelRuta extends javax.swing.JPanel {
         if (textoDestino.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaRuta.setText("Solo se permite el ingreso de 30 caracteres en el campo de destino");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaRuta);
         }
     }//GEN-LAST:event_textoDestinoKeyTyped
     /*
@@ -1415,6 +1404,7 @@ public class PanelRuta extends javax.swing.JPanel {
     private void botonCrearModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearModificarActionPerformed
         if(textoNombreRuta.getText().isEmpty() || textoDestino.getText().isEmpty()){
             etiquetaAlertaRuta.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaRuta);
         }
         else{
             try{
@@ -1439,6 +1429,7 @@ public class PanelRuta extends javax.swing.JPanel {
             }
             catch(NumberFormatException e){
                 etiquetaAlertaRuta.setText("Cuota de destino no valida");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaRuta);
             }
         }
     }//GEN-LAST:event_botonCrearModificarActionPerformed
@@ -1450,6 +1441,8 @@ public class PanelRuta extends javax.swing.JPanel {
     private void botonModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarActionPerformed
         if(this.tablaRutas.getSelectedRow() == -1){
             etiquetaAlertaTablaRutas.setText("Seleccione la ruta a modificar");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
+            
         }
         else{
             ruta = listadoRutas.get(this.tablaRutas.getSelectedRow());
@@ -1473,11 +1466,13 @@ public class PanelRuta extends javax.swing.JPanel {
     private void botonActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonActivarActionPerformed
         if(this.tablaRutas.getSelectedRow() == -1){
             etiquetaAlertaTablaRutas.setText("Seleccione la ruta a activar");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
         }
         else{
             ruta = listadoRutas.get(this.tablaRutas.getSelectedRow());
             if(ruta.isActiva()){
                 etiquetaAlertaTablaRutas.setText("La ruta ya se encuentra activada");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
             }
             else{
                 ruta.setActiva(true);
@@ -1494,17 +1489,20 @@ public class PanelRuta extends javax.swing.JPanel {
     private void botonDesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonDesactivarActionPerformed
         if(this.tablaRutas.getSelectedRow() == -1){
             etiquetaAlertaTablaRutas.setText("Seleccione la ruta a desactivar");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
         }
          else{
             ruta = listadoRutas.get(this.tablaRutas.getSelectedRow());
             if(!ruta.isActiva()){
                 etiquetaAlertaTablaRutas.setText("La ruta ya se encuentra desactivada");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
             }
             else{
                 ruta.setActiva(false);
                 mensaje = manejadorDB.modificarRuta(ruta);
                 if(mensaje.equals("No se puede desactivar. Hay paquetes actualmente en la ruta")){
                     etiquetaAlertaTablaRutas.setText(mensaje);
+                    manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
                     ruta.setActiva(true);
                 }
                 else{
@@ -1522,11 +1520,9 @@ public class PanelRuta extends javax.swing.JPanel {
             selectorFiltrado.clearSelection();
             textoBusquedaRutas.setText("");
             this.obtenerRutas(1);
-            this.limpiarEtiquetasDeAlerta();
         }
         else{
             this.obtenerRutas(0);
-            this.limpiarEtiquetasDeAlerta();
         }
     }//GEN-LAST:event_selectorMostrarTodasRutasItemStateChanged
     /*
@@ -1536,13 +1532,13 @@ public class PanelRuta extends javax.swing.JPanel {
     private void textoBusquedaRutasKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoBusquedaRutasKeyReleased
         if(!radioBotonNombre.isSelected() && !radioBotonDestino.isSelected() && !radioBotonEstado.isSelected()){
             etiquetaAlertaTablaRutas.setText("No se ha seleccionado un criterio de filtrado");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaRutas);
             textoBusquedaRutas.setText("");
         }
         else{  
             patronBusqueda = textoBusquedaRutas.getText();
             if(patronBusqueda.equals("")){
                 this.obtenerRutas(0);
-                this.limpiarEtiquetasDeAlerta();
             }
             else{
                 this.establecerFiltroDeBusquedaRutas();
@@ -1574,6 +1570,7 @@ public class PanelRuta extends javax.swing.JPanel {
         if (textoNombrePuntoControl.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaPuntoDeControl.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombre");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaPuntoDeControl);
         }
     }//GEN-LAST:event_textoNombrePuntoControlKeyTyped
     /*
@@ -1583,6 +1580,7 @@ public class PanelRuta extends javax.swing.JPanel {
     private void botonFinalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonFinalizarActionPerformed
         if(textoNombrePuntoControl.getText().isEmpty() || textoCantidadPaquetesCola.getText().isEmpty() || textoOperadorAsignado.getText().isEmpty()){
             etiquetaAlertaPuntoDeControl.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaPuntoDeControl);
         }
         else{
             this.crearPuntoDeControl(true);
@@ -1595,6 +1593,7 @@ public class PanelRuta extends javax.swing.JPanel {
     private void botonSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSiguienteActionPerformed
         if(textoNombrePuntoControl.getText().isEmpty() || textoCantidadPaquetesCola.getText().isEmpty() || textoOperadorAsignado.getText().isEmpty()){
             etiquetaAlertaPuntoDeControl.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaPuntoDeControl);
         }
          else{
             this.crearPuntoDeControl(false);
@@ -1604,7 +1603,6 @@ public class PanelRuta extends javax.swing.JPanel {
     Metodo encargado de inicializar la tabla de operadores y mostrar el JDialog MostrarOperadores
     */
     private void botonSeleccionarOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSeleccionarOperadorActionPerformed
-        this.limpiarEtiquetasDeAlerta();
         this.selectorFiltradoOperadores.clearSelection();
         this.selectorMostrarTodosOperadores.setSelected(false);
         textoBusquedaOperador.setText("");
@@ -1621,6 +1619,7 @@ public class PanelRuta extends javax.swing.JPanel {
     private void aceptarOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptarOperadorActionPerformed
         if(tablaOperadores.getSelectedRow() == -1){
             etiquetaAlertaTablaOperadores.setText("Seleccione un operador");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaOperadores);
         }
         else{
             operadorAsignado = listadoUsuarios.get(tablaOperadores.getSelectedRow()).getNombreUsuario();
@@ -1635,13 +1634,13 @@ public class PanelRuta extends javax.swing.JPanel {
     private void textoBusquedaOperadorKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoBusquedaOperadorKeyReleased
         if(!radioBotonPrimerNombreOperador.isSelected() && !radioBotonPrimerApellidoOperador.isSelected() && !radioBotonNombreOperador.isSelected()){
             etiquetaAlertaTablaOperadores.setText("No se ha seleccionado un criterio de filtrado");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaOperadores);
             textoBusquedaOperador.setText("");
         }
         else{
             patronBusqueda = textoBusquedaOperador.getText();
             if(patronBusqueda.equals("")){
                 this.obtenerUsuarios(0);
-                this.limpiarEtiquetasDeAlerta();
             }
             else{
                 this.establecerFiltroDeBusquedaOperadores();
@@ -1675,11 +1674,9 @@ public class PanelRuta extends javax.swing.JPanel {
             selectorFiltradoOperadores.clearSelection();
             textoBusquedaOperador.setText("");
             this.obtenerUsuarios(1);
-            this.limpiarEtiquetasDeAlerta();
         }
         else{
             this.obtenerUsuarios(0);
-            this.limpiarEtiquetasDeAlerta();
         }
     }//GEN-LAST:event_selectorMostrarTodosOperadoresItemStateChanged
     /*

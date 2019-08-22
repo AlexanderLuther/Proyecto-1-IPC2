@@ -2,7 +2,9 @@ package Frontend;
 import Frontend.Recepcionista.PanelRecepcionista;
 import Frontend.Administrador.PanelAdministrador;
 import Backend.CambiadorPaneles;
+import Backend.ManejadorBodega;
 import Backend.ManejadorDBSM;
+import Backend.ManejadorHilos;
 import Backend.Tarifa;
 import Backend.Usuario;
 /**
@@ -21,6 +23,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private Tarifa tarifa;
     private CambiadorPaneles cambiarPanel;
     private ManejadorDBSM manejadorDB;
+    private ManejadorHilos manejadorHilos;
     private PanelAdministrador panelAdministrador;
     private PanelRecepcionista panelRecepcionista;
     private PanelOperador panelOperador;
@@ -36,15 +39,17 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private double precioPorLibra;
     private double cuotaPriorizacion;
     private double cuotaDestino;
+    private ManejadorBodega manejadorBodega;
     
     public VentanaPrincipal() {
         this.setExtendedState(MAXIMIZED_BOTH);
         this.setLocationRelativeTo(null);
-        manejadorDB = new ManejadorDBSM();
-        cambiarPanel = new CambiadorPaneles();
-        panelAdministrador = new PanelAdministrador(this);
-        panelOperador = new PanelOperador();
-        panelRecepcionista = new PanelRecepcionista(this);
+        this.manejadorDB = new ManejadorDBSM();
+        this.manejadorHilos = new  ManejadorHilos();
+        this.cambiarPanel = new CambiadorPaneles();
+        this.panelAdministrador = new PanelAdministrador(this);
+        this.panelOperador = new PanelOperador();
+        this.panelRecepcionista = new PanelRecepcionista(this);
         initComponents();
     }
    
@@ -54,13 +59,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
    public void iniciarSesion(int tipo){
        contrasenaOculta = true;
        if(tipo == 0){
-           etiquetaInformacionLogin.setText("Bienvenido al sistema");
-           etiquetaAlertaLogin.setText("");
-           
+           etiquetaInformacionLogin.setText("Bienvenido al sistema");      
        }
        else{
            etiquetaInformacionLogin.setText("Cambio de Usuario");
-           etiquetaAlertaLogin.setText("");
            textoNombreUsuarioLogin.setText("");
            textoContrasenaLogin.setText("");
            botonSalirLogin.setText("Cancelar");
@@ -80,7 +82,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
        CreadorUsuarioAdministrador.setLocationRelativeTo(this);
        CreadorUsuarioAdministrador.setVisible(true);
        this.setVisible(true);
-       etiquetaAlertaTarifa.setText("");
        etiquetaInformacionTarifa.setText("<html> <center> Si selecciona cancelar todas las tarifas seran establecidas en Q0.00"
                                         + "<br> Puede modificar las tarifas ingresadas en cualquier momento </center> </html>");
        this.ReceptorTarifas.setLocationRelativeTo(this);
@@ -92,19 +93,21 @@ public class VentanaPrincipal extends javax.swing.JFrame {
    Metodo encargado de mostrar en pantalla el mensaje de error que recibe como parametro. 
    */
    public void lanzarMensaje(String mensaje){
-      etiquetaMensaje.setText(mensaje);
-      MostradorMensajes.setLocationRelativeTo(null);
-       MostradorMensajes.setVisible(true);
+        etiquetaMensaje.setText(mensaje);
+        MostradorMensajes.setLocationRelativeTo(null);
+        MostradorMensajes.setVisible(true);
    }
    
    public void mostrarAreaTrabajo(){
         switch (tipoUsuarioActual) {
             case ADMINISTRADOR:
+                panelAdministrador.setManejadorBodega(manejadorBodega);
                 cambiarPanel.cambiarPanel(panelPrincipal, panelAdministrador);
                 panelAdministrador.establecerFondo();
                 panelAdministrador.estableceUsuario(nombreUsuario);
             break;
             case RECEPCIONISTA:
+                panelRecepcionista.setManejadorBodega(manejadorBodega);
                 cambiarPanel.cambiarPanel(panelPrincipal, panelRecepcionista);
                 panelRecepcionista.establecerFondo();
                 panelRecepcionista.estableceUsuario(nombreUsuario);
@@ -113,6 +116,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 cambiarPanel.cambiarPanel(panelPrincipal, panelOperador);
             break;
         }
+   }
+  
+   /*
+   Metodo encargado de asignar un valor a la instancia manejadorBodega
+   */
+   public void setManejadorBodega(ManejadorBodega manejadorBodega){
+       this.manejadorBodega = manejadorBodega;
    }
     
     
@@ -1065,6 +1075,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void botonCrearUsuarioAdminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearUsuarioAdminActionPerformed
        if(textoNombresCreacionUsuarioAdmin.getText().isEmpty() || textoApellidosCreacionUsuarioAdmin.getText().isEmpty() || textoNombreUsuarioCreacionUsuarioAdmin.getText().isEmpty() || textoContrasenaCreacionUsuarioAdmin.getText().isEmpty()){
            etiquetaAlertaCrearUsuarioAdministrador.setText("Se deben llenar todos los campos obligatorios");
+           manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCrearUsuarioAdministrador);
        }
        else{
            nombres = textoNombresCreacionUsuarioAdmin.getText();
@@ -1083,6 +1094,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     Metodo encargado de terminar la ejecucion del programa
     */
     private void botonSalirUsuarioAdminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSalirUsuarioAdminActionPerformed
+        manejadorBodega.setCerrarAplicacion(true);
         System.exit(0);
     }//GEN-LAST:event_botonSalirUsuarioAdminActionPerformed
     /*
@@ -1109,6 +1121,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         if (textoNombresCreacionUsuarioAdmin.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaCrearUsuarioAdministrador.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombres");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCrearUsuarioAdministrador);
         }
     }//GEN-LAST:event_textoNombresCreacionUsuarioAdminKeyTyped
     /*
@@ -1118,6 +1131,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         if (textoApellidosCreacionUsuarioAdmin.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaCrearUsuarioAdministrador.setText("Solo se permite el ingreso de 30 caracteres en el campo de apellidos");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCrearUsuarioAdministrador);
         }
     }//GEN-LAST:event_textoApellidosCreacionUsuarioAdminKeyTyped
     /*
@@ -1127,6 +1141,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         if (textoNombreUsuarioCreacionUsuarioAdmin.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaCrearUsuarioAdministrador.setText("Solo se permite el ingreso de 25 caracteres en el campo de nombre de usuario");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCrearUsuarioAdministrador);
         }
     }//GEN-LAST:event_textoNombreUsuarioCreacionUsuarioAdminKeyTyped
     /*
@@ -1136,6 +1151,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         if (textoContrasenaCreacionUsuarioAdmin.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaCrearUsuarioAdministrador.setText("Solo se permite el ingreso de 25 caracteres en el campo de contraseña");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCrearUsuarioAdministrador);
         }
     }//GEN-LAST:event_textoContrasenaCreacionUsuarioAdminKeyTyped
     /*
@@ -1145,6 +1161,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
          if (textoContrasenaLogin.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaLogin.setText("Solo se permite el ingreso de 25 caracteres en el campo de contraseña");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaLogin);
         }
     }//GEN-LAST:event_textoContrasenaLoginKeyTyped
      /*
@@ -1154,6 +1171,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         if (textoNombreUsuarioLogin.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaLogin.setText("Solo se permite el ingreso de 25 caracteres en el campo de nombre de usuario");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaLogin);
         }
     }//GEN-LAST:event_textoNombreUsuarioLoginKeyTyped
      /*
@@ -1181,6 +1199,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             IniciarSesion.dispose();
         }
         else{
+            manejadorBodega.setCerrarAplicacion(true);
             System.exit(0);
         }
     }//GEN-LAST:event_botonSalirLoginActionPerformed
@@ -1193,6 +1212,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void botonIngresarLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonIngresarLoginActionPerformed
         if(textoNombreUsuarioLogin.getText().isEmpty() || textoContrasenaLogin.getText().isEmpty()){
             etiquetaAlertaLogin.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaLogin);
         }
         else{
             nombreUsuario = textoNombreUsuarioLogin.getText();
@@ -1207,6 +1227,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
             else{
                 etiquetaAlertaLogin.setText(mensaje);
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaLogin);
                 if(mensaje.equals("Contraseña incorrecta")){
                     textoContrasenaLogin.setText("");
                 }
@@ -1235,6 +1256,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void botonAceptarTarifaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAceptarTarifaActionPerformed
     if(textoTarifaOperacion.getText().isEmpty() || textoPrecioPorLiba.getText().isEmpty() || textoCuotaPriorizacion.getText().isEmpty()){
         etiquetaAlertaTarifa.setText("Se deben llenar todos los campos obligatorios");
+        manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTarifa);
     }
     else{
         try{
@@ -1249,6 +1271,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         }   
         catch(NumberFormatException e){
             etiquetaAlertaTarifa.setText("Monto ingresado no valido");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTarifa);
         }
     }
     }//GEN-LAST:event_botonAceptarTarifaActionPerformed

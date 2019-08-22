@@ -3,6 +3,7 @@ package Frontend.Administrador;
 
 import Backend.ManejadorBusqueda;
 import Backend.ManejadorDBSM;
+import Backend.ManejadorHilos;
 import Backend.Usuario;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,8 @@ public class PanelUsuario extends javax.swing.JPanel {
     
     //Variables e instancias de la clase.
     private ManejadorDBSM manejadorDB;
-    private ManejadorBusqueda manejadorBusqueda = new ManejadorBusqueda();
+    private ManejadorHilos manejadorHilos;
+    private ManejadorBusqueda manejadorBusqueda;
     private List<Usuario> listadoUsuarios;
     private ObservableList<Usuario> observableListUsuarios;
     private Usuario usuario;
@@ -37,6 +39,8 @@ public class PanelUsuario extends javax.swing.JPanel {
     //Constructor de la clase
     public PanelUsuario() {
         this.manejadorDB = new ManejadorDBSM();
+        this.manejadorBusqueda = new ManejadorBusqueda();
+        this.manejadorHilos = new ManejadorHilos();
         this.listadoUsuarios = new ArrayList<>();
         this.observableListUsuarios = ObservableCollections.observableList(listadoUsuarios);
         initComponents();
@@ -55,8 +59,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         this.observableListUsuarios.clear();
         this.observableListUsuarios.addAll(listado);
     }
-    
-    //0 llenar con 50
+   
     public void obtenerUsuarios(int tipo){
         listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario ORDER BY Nombre;",tipo);
         this.llenarTabla(listadoUsuarios);
@@ -102,11 +105,6 @@ public class PanelUsuario extends javax.swing.JPanel {
         CrearModificarUsuario.setVisible(true);
     }
     
-    //Metodo encargado de limpiar las areas de mensajes de alerta.
-    public void limpiarAlertas(){
-        alertaTabla.setText("");
-        etiquetaAlertaUsuario.setText("");
-    }
     
     /*
     Metodo encargado de mostrar un mensaje en pantalla, limpiar las areas de alerta y
@@ -114,7 +112,6 @@ public class PanelUsuario extends javax.swing.JPanel {
     */
     public void finalizarAccion(){
         this.lanzarMensaje(mensaje);
-        this.limpiarAlertas();
         if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonNombreUsuario.isSelected() && !radioBotonTipoUsuario.isSelected() && !radioBotonEstado.isSelected()){
             if(!selectorMostrarTodosLosRegistros.isSelected()){
                 this.obtenerUsuarios(0);
@@ -150,7 +147,6 @@ public class PanelUsuario extends javax.swing.JPanel {
             listadoUsuarios = this.manejadorBusqueda.busquedaUsuarioPorEstado(patronBusqueda, 0);
         }
         this.llenarTabla(listadoUsuarios);
-        this.limpiarAlertas();
     }
     
    //Metodo encargado de mostrar en pantalla el mensaje de error que recibe como parametro. 
@@ -221,7 +217,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         radioBotonEstado = new javax.swing.JRadioButton();
         radioBotonNombreUsuario = new javax.swing.JRadioButton();
         radioBotonPrimerNombre = new javax.swing.JRadioButton();
-        alertaTabla = new javax.swing.JLabel();
+        etiquetaAlertaTabla = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         textoBusqueda = new rojeru_san.RSMTextFull();
 
@@ -878,7 +874,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(9, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(radioBotonPrimerApellido)
@@ -898,19 +894,19 @@ public class PanelUsuario extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(jPanel2, gridBagConstraints);
 
-        alertaTabla.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
-        alertaTabla.setForeground(new java.awt.Color(204, 0, 0));
-        alertaTabla.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        etiquetaAlertaTabla.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        etiquetaAlertaTabla.setForeground(new java.awt.Color(204, 0, 0));
+        etiquetaAlertaTabla.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.ipadx = 788;
-        gridBagConstraints.ipady = 30;
+        gridBagConstraints.ipady = 24;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
-        add(alertaTabla, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 0);
+        add(etiquetaAlertaTabla, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -952,6 +948,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         if (textoContrasena.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 25 caracteres en el campo de contraseña");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaUsuario);
         }
     }//GEN-LAST:event_textoContrasenaKeyTyped
    
@@ -960,6 +957,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         if (textoNombreUsuario.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 25 caracteres en el campo de nombre de usuario");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaUsuario);
         }
     }//GEN-LAST:event_textoNombreUsuarioKeyTyped
     
@@ -968,6 +966,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         if (textoNombres.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombres");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaUsuario);
         }
     }//GEN-LAST:event_textoNombresKeyTyped
     
@@ -976,6 +975,7 @@ public class PanelUsuario extends javax.swing.JPanel {
         if (textoApellidos.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaUsuario.setText("Solo se permite el ingreso de 30 caracteres en el campo de apellidos");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaUsuario);
         }
     }//GEN-LAST:event_textoApellidosKeyTyped
 
@@ -1001,7 +1001,6 @@ public class PanelUsuario extends javax.swing.JPanel {
     private void botonCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCancelarActionPerformed
         CrearModificarUsuario.dispose();
         this.limpiarCreadorModificadorUsuario();
-        this.limpiarAlertas();
     }//GEN-LAST:event_botonCancelarActionPerformed
 
     /*
@@ -1013,6 +1012,7 @@ public class PanelUsuario extends javax.swing.JPanel {
     private void botonCrearModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearModificarActionPerformed
         if(textoNombres.getText().isEmpty() || textoApellidos.getText().isEmpty() || textoNombreUsuario.getText().isEmpty() || textoContrasena.getText().isEmpty()){
             etiquetaAlertaUsuario.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaUsuario);
         }
         else{
             nombres = textoNombres.getText();
@@ -1029,6 +1029,7 @@ public class PanelUsuario extends javax.swing.JPanel {
             }
             if(mensaje.equals("El nombre de usuario ya se encuentra registrado en el sistema")){
                     etiquetaAlertaUsuario.setText(mensaje);
+                    manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaUsuario);
             }
             else{
                 this.finalizarAccion();
@@ -1045,7 +1046,8 @@ public class PanelUsuario extends javax.swing.JPanel {
     */
     private void botonModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarActionPerformed
         if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a modificar");
+            etiquetaAlertaTabla.setText("Seleccione el usuario a modificar");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTabla);
         }
         else{
             usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
@@ -1080,12 +1082,14 @@ public class PanelUsuario extends javax.swing.JPanel {
     */
     private void botonActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonActivarActionPerformed
         if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a activar");
+            etiquetaAlertaTabla.setText("Seleccione el usuario a activar");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTabla);
         }
         else{
             usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
             if(usuario.isActivo()){
-                alertaTabla.setText("El usuario ya se encuentra activado");
+                etiquetaAlertaTabla.setText("El usuario ya se encuentra activado");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTabla);
             }
             else{
                 usuario.setActivo(true);
@@ -1101,7 +1105,8 @@ public class PanelUsuario extends javax.swing.JPanel {
     */
     private void botonEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonEliminarActionPerformed
          if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a eliminar");
+            etiquetaAlertaTabla.setText("Seleccione el usuario a eliminar");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTabla);
         }
         else{
              usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
@@ -1116,12 +1121,14 @@ public class PanelUsuario extends javax.swing.JPanel {
     */
     private void botonDesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonDesactivarActionPerformed
         if(this.tablaUsuarios.getSelectedRow() == -1){
-            alertaTabla.setText("Seleccione el usuario a desactivar");
+            etiquetaAlertaTabla.setText("Seleccione el usuario a desactivar");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTabla);
         }
          else{
             usuario = listadoUsuarios.get(this.tablaUsuarios.getSelectedRow());
             if(!usuario.isActivo()){
-                alertaTabla.setText("El usuario ya se encuentra desactivado");
+                etiquetaAlertaTabla.setText("El usuario ya se encuentra desactivado");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTabla);
             }
             else{
                 usuario.setActivo(false);
@@ -1140,11 +1147,9 @@ public class PanelUsuario extends javax.swing.JPanel {
             selectorFiltrado.clearSelection();
             textoBusqueda.setText("");
             this.obtenerUsuarios(1);
-            this.limpiarAlertas();
         }
         else{
             this.obtenerUsuarios(0);
-            this.limpiarAlertas();
         }
     }//GEN-LAST:event_selectorMostrarTodosLosRegistrosItemStateChanged
     /*
@@ -1153,14 +1158,14 @@ public class PanelUsuario extends javax.swing.JPanel {
     */
     private void textoBusquedaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoBusquedaKeyReleased
         if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonNombreUsuario.isSelected() && !radioBotonTipoUsuario.isSelected() && !radioBotonEstado.isSelected()){
-            alertaTabla.setText("No se ha seleccionado un criterio de filtrado");
+            etiquetaAlertaTabla.setText("No se ha seleccionado un criterio de filtrado");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTabla);
             textoBusqueda.setText("");
         }
         else{  
             patronBusqueda = textoBusqueda.getText();
             if(patronBusqueda.equals("")){
                 this.obtenerUsuarios(0);
-                this.limpiarAlertas();
             }
             else{
                 this.establecerFiltroDeBusqueda();
@@ -1196,7 +1201,6 @@ public class PanelUsuario extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JDialog CrearModificarUsuario;
     private javax.swing.JDialog MostradorMensajes;
-    private javax.swing.JLabel alertaTabla;
     private rojerusan.RSButtonIconI botonAceptarMensaje;
     private rojerusan.RSButtonIconI botonActivar;
     private rojerusan.RSButtonIconI botonBuscar;
@@ -1207,6 +1211,7 @@ public class PanelUsuario extends javax.swing.JPanel {
     private rojerusan.RSButtonIconI botonModificar;
     private rojerusan.RSButtonIconI botonNuevoUsuario;
     private rojeru_san.RSButton botonVerContrasena;
+    private javax.swing.JLabel etiquetaAlertaTabla;
     private javax.swing.JLabel etiquetaAlertaUsuario;
     private javax.swing.JLabel etiquetaMensaje;
     private javax.swing.JLabel jLabel1;

@@ -5,6 +5,7 @@ import Backend.ManejadorCalculos;
 import Backend.ManejadorCodigo;
 import Backend.ManejadorDBSM;
 import Backend.ManejadorFechas;
+import Backend.ManejadorHilos;
 import Backend.Paquete;
 import Backend.Ruta;
 import Backend.Tarifa;
@@ -28,6 +29,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     private ManejadorCodigo manejadorCodigo;
     private ManejadorCalculos manejadorCalculos;
     private ManejadorFechas manejadorFechas;
+    private ManejadorHilos manejadorHilos;
     private PanelInformacionFacturacion panelInformacionFacturacion;
     //Paquete
     private Paquete paquete;
@@ -59,6 +61,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     
     public PanelNuevoPaquete() {
         this.manejadorDB = new ManejadorDBSM();
+        this.manejadorHilos = new ManejadorHilos();
         this.manejadorBusqueda = new ManejadorBusqueda();
         this.manejadorCodigo = new ManejadorCodigo();
         this.manejadorFechas = new ManejadorFechas();
@@ -118,6 +121,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         }
         catch(NumberFormatException e){
             etiquetaAlertaNuevoPaquete.setText("Peso no valido");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaNuevoPaquete);
             return false;
         }
         return true;
@@ -135,20 +139,8 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         cuotaDestino = tarifa.getCuotaDestinoGlobal();
         precioLibra = tarifa.getPrecioLibraGlobal();
         etiquetaPrecioDestino.setText("Precio de destino: Q0.00");
-        this.limpiarAlertas();
     }
-    
-    /*
-    Metodo encargado de limpiar las etiquetas de alerta
-    */
-    public void limpiarAlertas(){
-        etiquetaAlertaNuevoPaquete.setText("");
-        etiquetaAlertaTablaDestinos.setText("");
-        etiquetaInformacionPaquete.setText("");
-        etiquetaAlertaNIT.setText("");
-        etiquetaAlertaDPI.setText("");
-    }
-  
+
     /*
     Metodo encargado de limpiar el listado de paquetes
     */
@@ -1367,9 +1359,9 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     private void botonFacturarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonFacturarActionPerformed
         if(textoPeso.getText().isEmpty() || textoDestino.getText().isEmpty()){
             etiquetaAlertaNuevoPaquete.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaNuevoPaquete);
         }
         else{
-            this.limpiarAlertas();
             if(this.crearPaquete()){
                 //Solicitar NIT, si es cf se procede a solicitar DPI 
                 this.mostrarReceptorNIT();
@@ -1408,11 +1400,13 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     private void botonSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSiguienteActionPerformed
         if(textoPeso.getText().isEmpty() || textoDestino.getText().isEmpty()){
             etiquetaAlertaNuevoPaquete.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaNuevoPaquete);
         }
         else{
             if(this.crearPaquete()){
                 this.inicializar();
                 etiquetaInformacionPaquete.setText("Paquete registrado exitosamente");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaInformacionPaquete);
             }
         }
     }//GEN-LAST:event_botonSiguienteActionPerformed
@@ -1421,7 +1415,6 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     */
     private void botonSeleccionarOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSeleccionarOperadorActionPerformed
         this.obtenerDestinos(0);
-        this.limpiarAlertas();
         MostrarDestinos.setLocationRelativeTo(this);
         MostrarDestinos.setVisible(true);
     }//GEN-LAST:event_botonSeleccionarOperadorActionPerformed
@@ -1445,6 +1438,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     private void aceptarDestinoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptarDestinoActionPerformed
         if(tablaDestinos.getSelectedRow() == -1){
             etiquetaAlertaTablaDestinos.setText("Seleccione un destino");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaDestinos);
         }
         else{
             destino = listadoDestinos.get(tablaDestinos.getSelectedRow()).getDestino();
@@ -1466,7 +1460,6 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
             
         }
         textoBusquedaDestino.setText("");
-        this.limpiarAlertas();
     }//GEN-LAST:event_selectorMostrarTodosDestinosItemStateChanged
     /*
     Metodo encargado de realizar una busqueda basado en el patron ingresado y almacenado en la variable
@@ -1481,7 +1474,6 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
             listadoDestinos= this.manejadorBusqueda.busquedaRutaPorDestino(patronBusqueda, 1);
             this.llenarTablaDestinos(listadoDestinos);
         }
-        this.limpiarAlertas();
     }//GEN-LAST:event_textoBusquedaDestinoKeyReleased
     /*
     Metodo encargado de obtener el NIT para realizar la facturacion
@@ -1489,6 +1481,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     private void botonAceptarNITFacturacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAceptarNITFacturacionActionPerformed
         if(textoNITFacturacion.getText().isEmpty()){
             etiquetaAlertaNIT.setText("Ingrese el numero de NIT");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaNIT);
         }
         else{
             NITFacturacion = textoNITFacturacion.getText();
@@ -1508,6 +1501,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         if (textoNITFacturacion.getText().length() == 9) {
             evt.consume();
             etiquetaAlertaNIT.setText("Solo se permite el ingreso de 9 caracteres.");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaNIT);
         }
     }//GEN-LAST:event_textoNITFacturacionKeyTyped
     /*
@@ -1516,6 +1510,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     private void botonAceptarDPIFacturacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAceptarDPIFacturacionActionPerformed
        if(textoDPIFacturacion.getText().equals("    -     -    ")){
             etiquetaAlertaDPI.setText("Ingrese el numero de DPI");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaDPI);
         }
         else{
             DPIFacturacion = textoDPIFacturacion.getText();
@@ -1529,6 +1524,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         if (textoNITCliente.getText().length() == 9) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 9 caracteres en el campo de NIT");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoNITClienteKeyTyped
      /*
@@ -1538,6 +1534,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         if (textoNombresCliente.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombres");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoNombresClienteKeyTyped
      /*
@@ -1547,6 +1544,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         if (textoApellidosCliente.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 30 caracteres en el campo de apellidos");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoApellidosClienteKeyTyped
     /*
@@ -1556,6 +1554,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         if (textoDireccionCliente.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 25 caracteres en el campo de direccion");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoDireccionClienteKeyTyped
     /*
@@ -1568,6 +1567,7 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     private void botonCrearModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearModificarActionPerformed
         if(textoNombresCliente.getText().isEmpty() || textoApellidosCliente.getText().isEmpty() || textoNITCliente.getText().isEmpty() || textoDPICliente.getText().equals("    -     -    ") || textoNITCliente.getText().isEmpty()){
             etiquetaAlertaCliente.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
         else{
             nombre = textoNombresCliente.getText();

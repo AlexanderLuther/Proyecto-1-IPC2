@@ -1,4 +1,5 @@
 package sistema.de.envio.de.paquetes;
+import Backend.ManejadorBodega;
 import Backend.ManejadorDBSM;
 import Frontend.VentanaPrincipal;
 import java.sql.ResultSet;
@@ -11,6 +12,7 @@ public class SistemaDeEnvioDePaquetes {
 
     //Objetos e instancias utilizados por la clase main.
     private static ManejadorDBSM manejadorDB = new ManejadorDBSM();
+    private static ManejadorBodega manejadorBodega = new ManejadorBodega();
     private static VentanaPrincipal ventanaPrincipal = new VentanaPrincipal();
     private static ResultSet resultado;
     
@@ -48,25 +50,32 @@ public class SistemaDeEnvioDePaquetes {
             usuario = new Usuario(nombre, apellido, nombreUsuario, contrasena, tipo, true);
             manejadorDB.crearNuevoUsuario(usuario);
         }*/
-        
+       manejadorBodega.setCerrarAplicacion(false);
+       manejadorBodega.start();
+       
         if(manejadorDB.conectarDB()){
             try {
                 resultado = manejadorDB.realizarConsulta("SELECT* FROM Usuario");
                 if(!resultado.next()){
+                    ventanaPrincipal.setManejadorBodega(manejadorBodega);
                     ventanaPrincipal.crearPrimerUsuarioAdministrador();
                     manejadorDB.crearCodigosIniciales();
+                    
                 }
                 else{
-                    ventanaPrincipal.iniciarSesion(0);
+                    ventanaPrincipal.setManejadorBodega(manejadorBodega);
+                    ventanaPrincipal.iniciarSesion(0);         
                 }
             } 
             catch (SQLException ex) {
                 ventanaPrincipal.lanzarMensaje("Error al conectar con la Base de Datos");
+                manejadorBodega.setCerrarAplicacion(true);
                 System.exit(0);
             }
         }
         else{
             ventanaPrincipal.lanzarMensaje("Error al conectar con la Base de Datos");
+            manejadorBodega.setCerrarAplicacion(true);
             System.exit(0);
         }
     }

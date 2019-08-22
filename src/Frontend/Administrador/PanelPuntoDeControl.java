@@ -1,6 +1,7 @@
 package Frontend.Administrador;
 import Backend.ManejadorBusqueda;
 import Backend.ManejadorDBSM;
+import Backend.ManejadorHilos;
 import Backend.PuntoDeControl;
 import Backend.Ruta;
 import Backend.Usuario;
@@ -18,6 +19,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     private ManejadorBusqueda manejadorBusqueda;
     private PanelRuta panelRuta;
     private ManejadorDBSM manejadorDB;
+    private ManejadorHilos manejadorHilos;
     private PuntoDeControl puntoDeControl;
     private List<PuntoDeControl> listadoPuntosDeControl;
     private ObservableList<PuntoDeControl> observableListPuntosDeControl;
@@ -37,12 +39,12 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     public PanelPuntoDeControl(PanelRuta panelRuta) {
         this.panelRuta = panelRuta;
         this.manejadorDB = new ManejadorDBSM();
+        this.manejadorHilos = new ManejadorHilos();
         this.manejadorBusqueda = new ManejadorBusqueda();
         this.listadoPuntosDeControl = new ArrayList<>();
         this.observableListPuntosDeControl = ObservableCollections.observableList(listadoPuntosDeControl);
         this.listadoUsuarios = new ArrayList<>();
         this.observableListUsuarios= ObservableCollections.observableList(listadoUsuarios);
-        
         initComponents();
     }
 
@@ -98,7 +100,6 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     actualizar los datos de la tabla de puntos de control.
     */
     public void finalizarAccion(String mensaje){
-        alertaTabla.setText("");
         this.lanzarMensaje(mensaje);
         this.obtenerPuntosDeControl(ruta.getCodigo());
     }
@@ -128,17 +129,8 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             listadoUsuarios = this.manejadorBusqueda.busquedaPorNombreUsuario(patronBusqueda, 1);    
         }
         this.llenarTablaUsuarios(listadoUsuarios);
-        this.limpiarEtiquetasDeAlerta();
     }
     
-     /*
-    Metodo encargado de limpiar las etiquetas de alerta
-    */
-    public void limpiarEtiquetasDeAlerta(){
-        etiquetaAlertaPuntoDeControl.setText("");
-        etiquetaAlertaTablaOperadores.setText("");
-        alertaTabla.setText("");
-    }
     
     /*
     Metodo encargado de inicializar y mostrar el JDialog CrearPuntoDeControl
@@ -149,7 +141,6 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             textoCantidadPaquetesCola.setText("");
             textoTarifaOperacion.setText("");
             textoOperadorAsignado.setText("");
-            etiquetaAlertaPuntoDeControl.setText("");
             CreardorPuntoDeControl.setTitle("Nuevo Punto de Control");
             botonAceptar.setText("CREAR");
             botonAceptar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Frontend/Imagenes/rutaColor.png")));
@@ -957,6 +948,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
         }
         else{
             alertaTabla.setText("No se puede agregar un nuevo punto de control. Hay paquetes actualmente en la ruta");
+            manejadorHilos.limpiarEtiquetaAlerta(alertaTabla);
         }
     }//GEN-LAST:event_botonAgregarPuntoDeControlActionPerformed
     /*
@@ -967,6 +959,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     private void botonModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarActionPerformed
         if(this.tablaPuntosDeControl.getSelectedRow() == -1){
             alertaTabla.setText("Seleccione el punto de control a modificar");
+            manejadorHilos.limpiarEtiquetaAlerta(alertaTabla);
         }
         else{
             puntoDeControl = listadoPuntosDeControl.get(tablaPuntosDeControl.getSelectedRow());
@@ -984,6 +977,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             }
             else{
                 alertaTabla.setText("No se puede modificar. Hay paquetes actualmente en punto de control");
+                manejadorHilos.limpiarEtiquetaAlerta(alertaTabla);
             } 
         }
     }//GEN-LAST:event_botonModificarActionPerformed
@@ -996,6 +990,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     private void botonEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonEliminarActionPerformed
         if(this.tablaPuntosDeControl.getSelectedRow() == -1){
             alertaTabla.setText("Seleccione el punto de control a eliminar");
+            manejadorHilos.limpiarEtiquetaAlerta(alertaTabla);
         }
         else{
             if(manejadorDB.consultarModificacionPuntoDeControl(ruta, puntoDeControl, 0)){
@@ -1005,6 +1000,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             }
             else{
                 alertaTabla.setText("No se puede eliminar un punto de control. Hay paquetes actualmente en la ruta");
+                manejadorHilos.limpiarEtiquetaAlerta(alertaTabla);
             }
         }
     }//GEN-LAST:event_botonEliminarActionPerformed
@@ -1012,10 +1008,8 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     Motodo encargado de ocultar el panel actual y llamar al metodo reestructurarPanelRuta
     */
     private void botonRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRegresarActionPerformed
-        alertaTabla.setText("");
         this.setVisible(false);
         panelRuta.reestructurarPanelRuta();
-        panelRuta.limpiarEtiquetasDeAlerta();
     }//GEN-LAST:event_botonRegresarActionPerformed
     /*
     Metodo encargado de cerrar el JDialog de mensajes
@@ -1030,13 +1024,13 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
         if (textoNombrePuntoControl.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaPuntoDeControl.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombre");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaPuntoDeControl);
         }
     }//GEN-LAST:event_textoNombrePuntoControlKeyTyped
    /*
     Metodo encargado de inicializar la tabla de operadores y mostrar el JDialog MostrarOperadores
     */
     private void botonSeleccionarOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSeleccionarOperadorActionPerformed
-        this.limpiarEtiquetasDeAlerta();
         selectorFiltradoOperadores.clearSelection();
         this.selectorMostrarTodosOperadores.setSelected(false);
         textoBusquedaOperador.setText("");
@@ -1049,8 +1043,6 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     */
     private void botonCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCancelarActionPerformed
         CreardorPuntoDeControl.setVisible(false);
-        alertaTabla.setText("");
-        etiquetaAlertaPuntoDeControl.setText("");
     }//GEN-LAST:event_botonCancelarActionPerformed
     /*
     Metodo encargado de crear o modificar un punto de control. Valida que todos los campos obligatorios se encuentren
@@ -1063,6 +1055,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     private void botonAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAceptarActionPerformed
         if(textoNombrePuntoControl.getText().isEmpty() || textoCantidadPaquetesCola.getText().isEmpty() || textoOperadorAsignado.getText().isEmpty()){
             etiquetaAlertaPuntoDeControl.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaPuntoDeControl);
         }
         else{
             try{
@@ -1107,6 +1100,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             }        
             catch(NumberFormatException e){
                 etiquetaAlertaPuntoDeControl.setText("Tarifa de operacion no valida");
+                manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaPuntoDeControl);
             } 
         }
     }//GEN-LAST:event_botonAceptarActionPerformed
@@ -1119,6 +1113,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     private void aceptarOperadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptarOperadorActionPerformed
         if(tablaOperadores.getSelectedRow() == -1){
             etiquetaAlertaTablaOperadores.setText("Seleccione un operador");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaOperadores);
         }
         else{
             operadorAsignado = listadoUsuarios.get(tablaOperadores.getSelectedRow()).getNombreUsuario();
@@ -1135,11 +1130,9 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
             selectorFiltradoOperadores.clearSelection();
             textoBusquedaOperador.setText("");
             this.obtenerUsuarios(1);
-            this.limpiarEtiquetasDeAlerta();
         }
         else{
             this.obtenerUsuarios(0);
-            this.limpiarEtiquetasDeAlerta();
         }
     }//GEN-LAST:event_selectorMostrarTodosOperadoresItemStateChanged
     /*
@@ -1149,13 +1142,13 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     private void textoBusquedaOperadorKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoBusquedaOperadorKeyReleased
         if(!radioBotonPrimerNombreOperador.isSelected() && !radioBotonPrimerApellidoOperador.isSelected() && !radioBotonNombreOperador.isSelected()){
             etiquetaAlertaTablaOperadores.setText("No se ha seleccionado un criterio de filtrado");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaTablaOperadores);
             textoBusquedaOperador.setText("");
         }
         else{
             patronBusqueda = textoBusquedaOperador.getText();
             if(patronBusqueda.equals("")){
                 this.obtenerUsuarios(0);
-                this.limpiarEtiquetasDeAlerta();
             }
             else{
                 this.establecerFiltroDeBusquedaOperadores();

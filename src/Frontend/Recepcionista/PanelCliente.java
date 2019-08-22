@@ -2,6 +2,7 @@ package Frontend.Recepcionista;
 import Backend.Cliente;
 import Backend.ManejadorBusqueda;
 import Backend.ManejadorDBSM;
+import Backend.ManejadorHilos;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdesktop.observablecollections.ObservableCollections;
@@ -15,7 +16,8 @@ public class PanelCliente extends javax.swing.JPanel {
    
     //Variables e instancias de la clase.
     private ManejadorDBSM manejadorDB;
-    private ManejadorBusqueda manejadorBusqueda = new ManejadorBusqueda();
+    private ManejadorBusqueda manejadorBusqueda;
+    private ManejadorHilos manejadorHilos;
     private List<Cliente> listadoClientes;
     private ObservableList<Cliente> observableListClientes;
     private Cliente cliente;
@@ -30,6 +32,8 @@ public class PanelCliente extends javax.swing.JPanel {
     //Constructor de la clase
     public PanelCliente() {
         this.manejadorDB = new ManejadorDBSM();
+        this.manejadorBusqueda = new ManejadorBusqueda();
+        this.manejadorHilos = new ManejadorHilos();
         this.listadoClientes = new ArrayList<>();
         this.observableListClientes = ObservableCollections.observableList(listadoClientes);
         initComponents();
@@ -88,20 +92,13 @@ public class PanelCliente extends javax.swing.JPanel {
         CrearModificarCliente.setLocationRelativeTo(this);
         CrearModificarCliente.setVisible(true);
     }
-    
-    //Metodo encargado de limpiar las areas de mensajes de alerta.
-    public void limpiarAlertas(){
-        alertaTabla.setText("");
-        etiquetaAlertaCliente.setText("");
-    }
-    
+        
     /*
     Metodo encargado de mostrar un mensaje en pantalla, limpiar las areas de alerta y
     refrescar el listado de usuarios.
     */
     public void finalizarAccion(){
         this.lanzarMensaje(mensaje);
-        this.limpiarAlertas();
         if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonCiudad.isSelected() && !radioBotonNIT.isSelected() && !radioBotonDPI.isSelected()){
             if(!selectorMostrarTodosLosRegistros.isSelected()){
                 this.obtenerClientes(0);
@@ -137,7 +134,6 @@ public class PanelCliente extends javax.swing.JPanel {
             listadoClientes = this.manejadorBusqueda.busquedaClientePorDPI(patronBusqueda);
         }
         this.llenarTabla(listadoClientes);
-        this.limpiarAlertas();
     }
     
    //Metodo encargado de mostrar en pantalla el mensaje de error que recibe como parametro. 
@@ -866,6 +862,7 @@ public class PanelCliente extends javax.swing.JPanel {
         if (textoNIT.getText().length() == 9) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 9 caracteres en el campo de NIT");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoNITKeyTyped
     
@@ -874,6 +871,7 @@ public class PanelCliente extends javax.swing.JPanel {
         if (textoNombres.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 30 caracteres en el campo de nombres");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoNombresKeyTyped
     
@@ -882,6 +880,7 @@ public class PanelCliente extends javax.swing.JPanel {
         if (textoApellidos.getText().length() == 30) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 30 caracteres en el campo de apellidos");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoApellidosKeyTyped
 
@@ -889,7 +888,6 @@ public class PanelCliente extends javax.swing.JPanel {
     private void botonCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCancelarActionPerformed
         CrearModificarCliente.dispose();
         this.limpiarCreadorModificadorCliente();
-        this.limpiarAlertas();
     }//GEN-LAST:event_botonCancelarActionPerformed
 
     /*
@@ -901,6 +899,7 @@ public class PanelCliente extends javax.swing.JPanel {
     private void botonCrearModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearModificarActionPerformed
         if(textoNombres.getText().isEmpty() || textoApellidos.getText().isEmpty() || textoNIT.getText().isEmpty() || textoDPI.getText().equals("    -     -    ") || textoNIT.getText().isEmpty()){
             etiquetaAlertaCliente.setText("Se deben llenar todos los campos obligatorios");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
         else{
             nombres = textoNombres.getText();
@@ -929,6 +928,7 @@ public class PanelCliente extends javax.swing.JPanel {
     private void botonModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarActionPerformed
         if(this.tablaClientes.getSelectedRow() == -1){
             alertaTabla.setText("Seleccione el cliente a modificar");
+            manejadorHilos.limpiarEtiquetaAlerta(alertaTabla);
         }
         else{
             cliente = listadoClientes.get(this.tablaClientes.getSelectedRow());
@@ -956,11 +956,9 @@ public class PanelCliente extends javax.swing.JPanel {
             selectorFiltrado.clearSelection();
             textoBusqueda.setText("");
             this.obtenerClientes(1);
-            this.limpiarAlertas();
         }
         else{
             this.obtenerClientes(0);
-            this.limpiarAlertas();
         }
     }//GEN-LAST:event_selectorMostrarTodosLosRegistrosItemStateChanged
     /*
@@ -970,13 +968,13 @@ public class PanelCliente extends javax.swing.JPanel {
     private void textoBusquedaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textoBusquedaKeyReleased
         if(!radioBotonPrimerNombre.isSelected() && !radioBotonPrimerApellido.isSelected() && !radioBotonCiudad.isSelected() && !radioBotonNIT.isSelected() && !radioBotonDPI.isSelected()){
             alertaTabla.setText("No se ha seleccionado un criterio de filtrado");
+            manejadorHilos.limpiarEtiquetaAlerta(alertaTabla);
             textoBusqueda.setText("");
         }
         else{  
             patronBusqueda = textoBusqueda.getText();
             if(patronBusqueda.equals("")){
                 this.obtenerClientes(0);
-                this.limpiarAlertas();
             }
             else{
                 this.establecerFiltroDeBusqueda();
@@ -1013,6 +1011,7 @@ public class PanelCliente extends javax.swing.JPanel {
          if (textoCiudad.getText().length() == 25) {
             evt.consume();
             etiquetaAlertaCliente.setText("Solo se permite el ingreso de 25 caracteres en el campo de direccion");
+            manejadorHilos.limpiarEtiquetaAlerta(etiquetaAlertaCliente);
         }
     }//GEN-LAST:event_textoCiudadKeyTyped
 

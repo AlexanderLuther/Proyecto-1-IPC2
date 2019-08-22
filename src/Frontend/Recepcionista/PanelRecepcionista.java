@@ -1,5 +1,6 @@
 package Frontend.Recepcionista;
 import Backend.CambiadorPaneles;
+import Backend.ManejadorBodega;
 import Backend.ManejadorDBSM;
 import Frontend.PanelInicio;
 import Frontend.VentanaPrincipal;
@@ -17,7 +18,8 @@ public class PanelRecepcionista extends javax.swing.JPanel {
     private PanelInicio panelInicio;
     private PanelNuevoPaquete panelNuevoPaquete;
     private PanelCliente panelCliente;
-    ResultSet resultado;
+    private ResultSet resultado;
+    private ManejadorBodega manejadorBodega;
     
     //Constructor de la clase
     public PanelRecepcionista(VentanaPrincipal ventanaPrincipal) {
@@ -45,6 +47,13 @@ public class PanelRecepcionista extends javax.swing.JPanel {
    //Metodo encargado de establecer el panel de fondo.
    public void establecerFondo(){
        cambiarPanel.cambiarPanel(panelPrincipal, panelInicio);
+   }
+    
+   /*
+   Metodo encargado de asignar un valor a la instancia manejadorBodega
+   */
+   public void setManejadorBodega(ManejadorBodega manejadorBodega){
+       this.manejadorBodega = manejadorBodega;
    }
 
    @SuppressWarnings("unchecked")
@@ -478,8 +487,9 @@ public class PanelRecepcionista extends javax.swing.JPanel {
         ventanaPrincipal.iniciarSesion(1);
     }//GEN-LAST:event_botonCambiarUsuarioActionPerformed
 
-    //Metodo encargado de salir de la aplicacion
+    //Metodo encargado de detener el hilo de bodega y salir de la aplicacion
     private void botonSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSalirActionPerformed
+        manejadorBodega.setCerrarAplicacion(true);
         System.exit(0);
     }//GEN-LAST:event_botonSalirActionPerformed
     
@@ -501,7 +511,6 @@ public class PanelRecepcionista extends javax.swing.JPanel {
     private void botonClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonClienteActionPerformed
         panelCliente.obtenerClientes(0);
         panelCliente.inicializarCasillasSeleccion();
-        panelCliente.limpiarAlertas();
         cambiarPanel.cambiarPanel(panelPrincipal, panelCliente);
     }//GEN-LAST:event_botonClienteActionPerformed
 
