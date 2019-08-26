@@ -91,7 +91,13 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
     }
     
     public void obtenerUsuarios(int tipo){
-        listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario WHERE Activo = TRUE && Tipo = 'Operador' ORDER BY NombreUsuario;",tipo);
+        if(tipo == 0){
+            listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario WHERE Activo = TRUE && Tipo = 'Operador' ORDER BY NombreUsuario LIMIT 45;");
+        }
+        else{
+            listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario WHERE Activo = TRUE && Tipo = 'Operador' ORDER BY NombreUsuario;");
+        }
+
         this.llenarTablaUsuarios(listadoUsuarios);
     }
     
@@ -1067,7 +1073,7 @@ public class PanelPuntoDeControl extends javax.swing.JPanel {
                     tarifaOperacionPropia = true;
                 }
                 else{
-                    tarifaOperacion = 0.00;
+                    tarifaOperacion = manejadorDB.recuperarTarifas().getTarifaOperacionGlobal();
                     tarifaOperacionPropia = false;
                 }    
                 if(botonAceptar.getText().equals("CREAR")){

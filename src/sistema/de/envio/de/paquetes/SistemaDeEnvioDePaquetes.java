@@ -50,6 +50,7 @@ public class SistemaDeEnvioDePaquetes {
             usuario = new Usuario(nombre, apellido, nombreUsuario, contrasena, tipo, true);
             manejadorDB.crearNuevoUsuario(usuario);
         }*/
+       
        manejadorBodega.setCerrarAplicacion(false);
        manejadorBodega.start();
        

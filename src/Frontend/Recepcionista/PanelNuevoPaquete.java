@@ -90,7 +90,12 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
     }
     
     public void obtenerDestinos(int tipo){
-        listadoDestinos = manejadorDB.obtenerListadoRutas("SELECT DISTINCT Destino FROM Ruta WHERE Activa = TRUE;",tipo);
+        if(tipo == 0){
+            listadoDestinos = manejadorDB.obtenerListadoRutas("SELECT DISTINCT Destino FROM Ruta WHERE Activa = TRUE LIMIT 45;");
+        }
+        else{
+            listadoDestinos = manejadorDB.obtenerListadoRutas("SELECT DISTINCT Destino FROM Ruta WHERE Activa = TRUE;");
+        }
         this.llenarTablaDestinos(listadoDestinos);
     }
     
@@ -367,10 +372,14 @@ public class PanelNuevoPaquete extends javax.swing.JPanel {
         MostrarDestinos.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         MostrarDestinos.setTitle("Seleccione un Destino");
         MostrarDestinos.setBackground(new java.awt.Color(204, 204, 204));
+        MostrarDestinos.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        MostrarDestinos.setForeground(new java.awt.Color(0, 153, 255));
         MostrarDestinos.setMinimumSize(new java.awt.Dimension(515, 600));
         MostrarDestinos.setModal(true);
         MostrarDestinos.setResizable(false);
 
+        tablaDestinos.setFont(new java.awt.Font("Roboto", 1, 14)); // NOI18N
+        tablaDestinos.setForeground(new java.awt.Color(0, 153, 255));
         tablaDestinos.setSelectionBackground(new java.awt.Color(0, 153, 255));
 
         org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${observableListRutas}");

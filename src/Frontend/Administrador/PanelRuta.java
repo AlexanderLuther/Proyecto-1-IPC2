@@ -75,7 +75,12 @@ public class PanelRuta extends javax.swing.JPanel {
     }
     
     public void obtenerUsuarios(int tipo){
-        listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario WHERE Activo = TRUE && Tipo = 'Operador' ORDER BY NombreUsuario;",tipo);
+        if(tipo == 0){
+            listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario WHERE Activo = TRUE && Tipo = 'Operador' ORDER BY NombreUsuario LIMIT 45;");   
+        }
+        else{
+            listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario WHERE Activo = TRUE && Tipo = 'Operador' ORDER BY NombreUsuario;");  
+        }
         this.llenarTablaUsuarios(listadoUsuarios);
     }
 
@@ -96,7 +101,12 @@ public class PanelRuta extends javax.swing.JPanel {
     }
     
     public void obtenerRutas(int tipo){
-        listadoRutas = manejadorDB.obtenerListadoRutas("SELECT* FROM Ruta ORDER BY Codigo;",tipo);
+        if(tipo == 0){
+            listadoRutas = manejadorDB.obtenerListadoRutas("SELECT* FROM Ruta ORDER BY Codigo LIMIT 45;"); 
+        }
+        else{
+            listadoRutas = manejadorDB.obtenerListadoRutas("SELECT* FROM Ruta ORDER BY Codigo;");  
+        }
         this.llenarTablaRutas(listadoRutas);
     }
    
@@ -217,7 +227,7 @@ public class PanelRuta extends javax.swing.JPanel {
                 puntoDeControl = new PuntoDeControl(contadorPuntosDeControl, ruta.getCodigo(), nombrePuntoControl, tarifaOperacion, cantidadPaquetesCola, operadorAsignado, ultimoPuntoDeControl, true);
             }
             else{
-                tarifaOperacion = 0.00;
+                tarifaOperacion = manejadorDB.recuperarTarifas().getTarifaOperacionGlobal();
                 puntoDeControl = new PuntoDeControl(contadorPuntosDeControl, ruta.getCodigo(), nombrePuntoControl, tarifaOperacion, cantidadPaquetesCola, operadorAsignado, ultimoPuntoDeControl, false);
             }
             mensaje = manejadorDB.crearNuevoPuntoDeControl(puntoDeControl);

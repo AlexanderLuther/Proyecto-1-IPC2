@@ -20,6 +20,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
     private VentanaPrincipal ventanaPrincipal;
     private PanelUsuario panelUsuario;
     private PanelInicio panelInicio;
+    private PanelReportes panelReportes;
     private PanelRuta panelRuta;
     private double tarifaOperacion;
     private double precioPorLibra;
@@ -38,6 +39,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
         this.panelUsuario = new PanelUsuario();
         this.panelInicio = new PanelInicio();
         this.panelRuta = new PanelRuta();
+        this.panelReportes = new PanelReportes();
         initComponents();
     }
     
@@ -764,9 +766,11 @@ public class PanelAdministrador extends javax.swing.JPanel {
         panelUsuario.inicializarCasillasSeleccion();
         cambiarPanel.cambiarPanel(panelPrincipal, panelUsuario);
     }//GEN-LAST:event_botonUsuarioActionPerformed
-
+    /*
+    Metodo encargado de mostrar el panel de reportes
+    */
     private void botonReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonReportesActionPerformed
-
+        cambiarPanel.cambiarPanel(panelPrincipal, panelReportes);
     }//GEN-LAST:event_botonReportesActionPerformed
 
     /*
@@ -796,7 +800,7 @@ public class PanelAdministrador extends javax.swing.JPanel {
 
     //Metodo encargado de mostrar la informacion del desarrollador
     private void botonAcecaDeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAcecaDeActionPerformed
-        this.lanzarMensaje("<html> <center> Desarollador por: <br> Helmuth Alexander Luther Montejo </center> </html>");
+        this.lanzarMensaje("<html> <center> Desarollado por: <br> Helmuth Alexander Luther Montejo </center> </html>");
     }//GEN-LAST:event_botonAcecaDeActionPerformed
 
     //Metodo encargado de mostrar la ventana de inicio de sesion.

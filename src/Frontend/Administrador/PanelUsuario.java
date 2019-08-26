@@ -61,7 +61,12 @@ public class PanelUsuario extends javax.swing.JPanel {
     }
    
     public void obtenerUsuarios(int tipo){
-        listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario ORDER BY Nombre;",tipo);
+        if(tipo == 0){
+            listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario ORDER BY Nombre LIMIT 45;");
+        }
+        else{
+            listadoUsuarios = manejadorDB.obtenerListadoUsuarios("SELECT* FROM Usuario ORDER BY Nombre;");
+        }
         this.llenarTabla(listadoUsuarios);
     }
     //-------------------------------------------------------------------------------

@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -29,15 +30,22 @@ public class ManejadorDBSM {
     private Statement declaracion;
     private PreparedStatement declaracionSegura;
     private ResultSet resultado;
+    private ResultSet resultado2;
     private String tipoUsuarioActual;
     private List listado;
-    private List listadoAcotado;
     private Tarifa tarifa;
     private String codigoRuta;  
     private String codigoPaquete;
+    private int codigoPuntoDeControl;
+    private int cantidadPaquetesColaActual;
+    private int cantidadPaquetesCola;
     private Ruta ruta;
     private PuntoDeControl puntoDeControl;
     private Cliente cliente;
+    private EntidadAsociativaPaquetePasaPuntoDeControl paquetePasaPuntoDeControl;
+    private int numeroPuntoDeControlActual;
+    private Paquete paquete;
+    
     /*
     Metodo encargado de establecer la conexion con la Base de Datos.
     */
@@ -67,8 +75,69 @@ public class ManejadorDBSM {
         return resultado;
     }
     
-        
-    public List obtenerListadoUsuarios(String codigoSQL, int tipo){
+    /*
+    Metodo encargado de realizar una consulta y devolver el valor entero que obtiene.
+    */
+    public int obtenerCantidad(String codigoSQL){
+        try {
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){        
+                return resultado.getInt("COUNT(*)");
+            }
+        }
+        catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return 0;
+    }
+    
+    /*
+    Metodo encargado de devolver un valor numerico equivalente a un costo.
+    */
+    public double obtenerCostoTotal(String codigoSQL){
+        double costoTotal = 0;
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                costoTotal = costoTotal + resultado.getDouble("Costo");
+            }
+    
+        }    
+        catch (SQLException ex) {
+            System.out.println(ex); 
+        }
+        return costoTotal;
+    } 
+    
+    /*
+    Metodo encargado de devolver un valor numerico equivalente a un ingreso.
+    */
+    public double obtenerIngresoTotal(String codigoSQL){
+        double ingresoTotal = 0;
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                ingresoTotal = ingresoTotal + resultado.getDouble("PrecioTotal");
+            }
+        }    
+        catch (SQLException ex) {
+            System.out.println(ex); 
+        }
+        return ingresoTotal;
+    } 
+     
+    
+//-------------------------------------------------------------USUARIO----------------------------------------------------------------------------------------------------------    
+    
+    /*
+    Metodo encargado de obtener un listado de usuarios. 
+    */
+    public List obtenerListadoUsuarios(String codigoSQL){
         try {
             this.conectarDB();
             listado = new ArrayList<>();
@@ -81,107 +150,9 @@ public class ManejadorDBSM {
         } catch (SQLException ex) {
             System.out.println("Error de conexion con la base de datos");
         }
-        if(tipo == 0){
-            if (listado.size() > 50){
-                listadoAcotado = new ArrayList<>();
-                for(int i = 0; i < 45; i++){
-                    listadoAcotado.add(listado.get(i));
-                }
-                return listadoAcotado;
-            }
-        }
         return listado;
     }
     
-    
-    public List obtenerListadoRutas(String codigoSQL, int tipo){
-        try {
-            this.conectarDB();
-            listado = new ArrayList<>();
-            declaracion = conexion.createStatement();
-            resultado = declaracion.executeQuery(codigoSQL);
-            while(resultado.next()){
-                if(codigoSQL.contains("DISTINCT")){
-                    ruta = new Ruta("", "", resultado.getString("Destino"), true);
-                }
-                else{
-                    ruta = new Ruta(resultado.getString("Codigo"), resultado.getString("Nombre"), resultado.getString("Destino"), resultado.getBoolean("Activa"));
-                }          
-                listado.add(ruta);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Error de conexion con la base de datos");
-        }
-        if(tipo == 0){
-            if (listado.size() > 50){
-                listadoAcotado = new ArrayList<>();
-                for(int i = 0; i < 45; i++){
-                    listadoAcotado.add(listado.get(i));
-                }
-                return listadoAcotado;
-            }
-        }
-        return listado;
-    }
-    
-    
-    public List obtenerListadoPuntosDeControl(String codigoSQL){
-        try {
-            this.conectarDB();
-            listado = new ArrayList<>();
-            declaracion = conexion.createStatement();
-            resultado = declaracion.executeQuery(codigoSQL);
-            while(resultado.next()){
-                puntoDeControl = new PuntoDeControl(resultado.getInt("Codigo"), resultado.getString("CodigoRuta"), resultado.getString("Nombre"), resultado.getDouble("TarifaOperacion"),
-                resultado.getInt("CantidadPaquetesCola"), resultado.getString("OperadorAsignado"), resultado.getBoolean("UltimoPuntoDeControl"), resultado.getBoolean("TarifaOperacionPropia"));
-                listado.add(puntoDeControl);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Error de conexion con la base de datos");
-        }
-        return listado;
-    }
-    
-    public List obtenerListadoClientes(String codigoSQL, int tipo){
-        try {
-            this.conectarDB();
-            listado = new ArrayList<>();
-            declaracion = conexion.createStatement();
-            resultado = declaracion.executeQuery(codigoSQL);
-            while(resultado.next()){
-                cliente = new Cliente(resultado.getString("Nombre"), resultado.getString("Apellido"), resultado.getString("Direccion"), resultado.getString("DPI"), resultado.getString("NIT"));
-                listado.add(cliente);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Error de conexion con la base de datos");
-        }
-        if(tipo == 0){
-            if (listado.size() > 50){
-                listadoAcotado = new ArrayList<>();
-                for(int i = 0; i < 45; i++){
-                    listadoAcotado.add(listado.get(i));
-                }
-                return listadoAcotado;
-            }
-        }
-        return listado;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-//-------------------------------------------------------------USUARIO----------------------------------------------------------------------------------------------------------    
     /*
     Metodo encargado de crear un nuevo registro en la base de datos correspondiente a un nuevo usuario.
     */
@@ -236,7 +207,7 @@ public class ManejadorDBSM {
         return "Usuario " + usuario.getNombreUsuario() + " modificado exitosamente";
     }
     
-     /*
+    /*
     Metodo encargado de eliminar un registro en la base de datos correspondiente a un usuario.
     */
       public String eliminarUsuario(Usuario usuario){
@@ -348,6 +319,31 @@ public class ManejadorDBSM {
     } 
     
     //-------------------------------------------------------------RUTA----------------------------------------------------------------------------------------------------------  
+    
+    /*
+    Metodo encargado de obtener un listado de rutas. 
+    */
+    public List obtenerListadoRutas(String codigoSQL){
+        try {
+            this.conectarDB();
+            listado = new ArrayList<>();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                if(codigoSQL.contains("DISTINCT")){
+                    ruta = new Ruta("", "", resultado.getString("Destino"), true);
+                }
+                else{
+                    ruta = new Ruta(resultado.getString("Codigo"), resultado.getString("Nombre"), resultado.getString("Destino"), resultado.getBoolean("Activa"));
+                }          
+                listado.add(ruta);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return listado;
+    }
+    
     /*
     Metodo encargado de crear un nuevo registro en la base de datos correspondiente a una nueva ruta.
     */
@@ -402,8 +398,105 @@ public class ManejadorDBSM {
         return "Ruta " + ruta.getNombre()+ " modificada exitosamente";
     }
     
+    /*
+    Metodo encargado de realizar una consulta en la base de datos correspondiente a una ruta. Regresa la ruta obtenida
+    */
+    public Ruta obtenerRuta(String codigoSQL){
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                ruta = new Ruta(resultado.getString("Codigo"), resultado.getString("Nombre"), resultado.getString("Destino"), resultado.getBoolean("Activa"));
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return ruta;
+    }
+    /*
+    Metodo encargado de devolver un listado con las 3 rutas mas populares en un intervalo de tiempo. Recibe tres parametros, el primero todoTiempo
+    indica si se establecion un intervao de tiempo o no, y los otros dos son los que indican las fechas dentro de las cuales se manejara el intervalo
+    de tiempo.
+    */ 
+    public List obtenerRutasPopulares(boolean todoTiempo, Timestamp fechaInicial, Timestamp fechaFinal){
+        listado = new ArrayList<>();
+         try {
+             this.conectarDB();
+            if(todoTiempo){
+                declaracion = conexion.createStatement();
+                resultado = declaracion.executeQuery("SELECT CodigoRuta, COUNT(CodigoRuta) AS Total FROM PaqueteAsignadoRuta GROUP BY CodigoRuta ORDER BY Total DESC LIMIT 3;");
+                while(resultado.next()){        
+                    declaracion = conexion.createStatement();
+                    resultado2 = declaracion.executeQuery("SELECT* FROM Ruta WHERE Codigo = '"+resultado.getString("CodigoRuta")+"';");
+                    while(resultado2.next()){
+                        ruta = new Ruta(resultado2.getString("Codigo"), resultado2.getString("Nombre"), resultado2.getString("Destino"), resultado2.getBoolean("Activa"));
+                        listado.add(ruta);
+                    }
+                }
+            }
+            else{
+                declaracion = conexion.createStatement();
+                resultado = declaracion.executeQuery("SELECT CodigoRuta, COUNT(CodigoRuta) AS Total FROM PaqueteAsignadoRuta WHERE FechaAsignacion > '"+fechaInicial+"' && FechaAsignacion < '"+fechaFinal+"'  GROUP BY CodigoRuta ORDER BY Total DESC LIMIT 3;");
+                while(resultado.next()){        
+                    declaracion = conexion.createStatement();
+                    resultado2 = declaracion.executeQuery("SELECT* FROM Ruta WHERE Codigo = '"+resultado.getString("CodigoRuta")+"';");
+                    while(resultado2.next()){
+                        ruta = new Ruta(resultado2.getString("Codigo"), resultado2.getString("Nombre"), resultado2.getString("Destino"), resultado2.getBoolean("Activa"));
+                        listado.add(ruta);
+                    }
+                }
+            }
+        }
+        catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return listado;
+    }
+     
+    /*
+    Metodo encargado de devolver un listado de rutas segun un intervalo de tiempo. Recibe tres parametros, el primero todoTiempo indica si se 
+    establecio un intervao de tiempo o no, y los otros dos son los que indican las fechas dentro de las cuales se manejara el intervalo de tiempo. 
+    */
+    public List obtenerRutasPorIntervaloDeTiempo(boolean todoTiempo, Timestamp fechaInicial, Timestamp fechaFinal){
+        listado = new ArrayList<>();
+        try {
+            this.conectarDB();
+            if(todoTiempo){
+                declaracion = conexion.createStatement();
+                resultado = declaracion.executeQuery("SELECT DISTINCT CodigoRuta  FROM PaqueteAsignadoRuta;");
+                while(resultado.next()){
+                    declaracion = conexion.createStatement();
+                    resultado2 = declaracion.executeQuery("SELECT* FROM Ruta WHERE Codigo = '"+resultado.getString("CodigoRuta")+"';");
+                    while(resultado2.next()){
+                        ruta = new Ruta(resultado2.getString("Codigo"), resultado2.getString("Nombre"), resultado2.getString("Destino"), resultado2.getBoolean("Activa"));
+                        listado.add(ruta);
+                    }
+                }
+            }
+            else{
+                declaracion = conexion.createStatement();
+                resultado = declaracion.executeQuery("SELECT DISTINCT CodigoRuta  FROM PaqueteAsignadoRuta WHERE FechaAsignacion > '"+fechaInicial+"' && FechaAsignacion < '"+fechaFinal+"';");
+                while(resultado.next()){
+                    declaracion = conexion.createStatement();
+                    resultado2 = declaracion.executeQuery("SELECT* FROM Ruta WHERE Codigo = '"+resultado.getString("CodigoRuta")+"';");
+                    while(resultado2.next()){
+                        ruta = new Ruta(resultado2.getString("Codigo"), resultado2.getString("Nombre"), resultado2.getString("Destino"), resultado2.getBoolean("Activa"));
+                        listado.add(ruta);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return listado;
+    }
     
     //-------------------------------------------------------------CODIGO----------------------------------------------------------------------------------------------------------
+   
+    /*
+    Metodo encargado de crear los codigos iniciales de paquetes y rutas cuando se inicia por primera vez la aplicacion
+    */
     public void crearCodigosIniciales(){
         try {
             this.conectarDB();
@@ -414,8 +507,10 @@ public class ManejadorDBSM {
             System.out.println("Error");
         }
     }
-    
-    
+  
+    /*
+    Metodo encargado de obtener el codigo actual de rutas.
+    */
     public String obtenerCodigoRuta(){
         try {
             this.conectarDB();
@@ -431,6 +526,9 @@ public class ManejadorDBSM {
         return codigoRuta;
     }
     
+    /*
+    Metodo encargado de actualizar el codigo actual de rutas.
+    */
     public void actualizarCodigoRuta(String codigo){
         try {
             this.conectarDB();
@@ -442,6 +540,9 @@ public class ManejadorDBSM {
         }
     }
     
+    /*
+    Metodo encargado de obtener el codigo actual de paquetes.
+    */
     public String obtenerCodigoPaquete(){
         try {
             this.conectarDB();
@@ -457,7 +558,10 @@ public class ManejadorDBSM {
         return codigoPaquete;
     }
     
-     public void actualizarCodigoPaquete(String codigo){
+    /*
+    Metodo encargado de actualizar el codigo actual de paquetes.
+    */
+    public void actualizarCodigoPaquete(String codigo){
         try {
             this.conectarDB();
             declaracion = conexion.createStatement();
@@ -467,10 +571,31 @@ public class ManejadorDBSM {
             System.out.println("Error");
         }
     }
-      //-------------------------------------------------------------PUNTO DE CONTROL----------------------------------------------------------------------------------------------------------
+    
+    //-------------------------------------------------------------PUNTO DE CONTROL----------------------------------------------------------------------------------------------------------
     
     /*
-    Metodo encargado de crear un nuevo registro en la base de datos correspondiente a una nueva ruta.
+    Metodo encargado de obtener un listado de puntos de control.
+    */
+    public List obtenerListadoPuntosDeControl(String codigoSQL){
+        try {
+            this.conectarDB();
+            listado = new ArrayList<>();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                puntoDeControl = new PuntoDeControl(resultado.getInt("Codigo"), resultado.getString("CodigoRuta"), resultado.getString("Nombre"), resultado.getDouble("TarifaOperacion"),
+                resultado.getInt("CantidadPaquetesCola"), resultado.getString("OperadorAsignado"), resultado.getBoolean("UltimoPuntoDeControl"), resultado.getBoolean("TarifaOperacionPropia"));
+                listado.add(puntoDeControl);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return listado;
+    }
+    
+    /*
+    Metodo encargado de crear un nuevo registro en la base de datos correspondiente a un nuevo punto de control.
     */
     public String crearNuevoPuntoDeControl(PuntoDeControl puntoDeControl){
         try {
@@ -498,8 +623,8 @@ public class ManejadorDBSM {
         }
     }
     
-     /*
-    Metodo encargado de actualizar un registro en la base de datos correspondiente a una ruta.
+    /*
+    Metodo encargado de consultar si existen o no paquetes actualmente dentro del punto de control indicado
     */
     public boolean consultarModificacionPuntoDeControl(Ruta ruta, PuntoDeControl puntodeControl , int tipo){
         try {
@@ -525,6 +650,9 @@ public class ManejadorDBSM {
         return true;
     }
     
+    /*
+    Metodo encargado de eliminar un registro en la base de datos correspondiente a un punto de control
+    */
     public String eliminarPuntoDeControl(PuntoDeControl puntodeControl){
         try {
             this.conectarDB();
@@ -537,6 +665,9 @@ public class ManejadorDBSM {
         return "Punto de control eliminado exitosamente";
     }
     
+    /*
+    Metodo encargado de actualizar un registro en la base de datos correspondiente a un punto de control.
+    */
     public String modificarPuntoDeControl(PuntoDeControl puntoDeControl){
         try {
             this.conectarDB();
@@ -555,9 +686,82 @@ public class ManejadorDBSM {
         }
         return "Punto de control " + puntoDeControl.getNombre() + " modificado exitosamente";
     }
+    /*
+    Metodo encargado de obtener el punto de control actual de un paquete.
+    */
+    public int obtenerPuntoDeControlActual(Paquete paquete){
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT* FROM PaqueteAsignadoRuta WHERE CodigoPaquete = '"+paquete.getCodigo()+"';");
+            while(resultado.next()){
+                return resultado.getInt("PuntoDeControlActual");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return 0;
+    }
+    
+    /*
+    Metodo encargado de obtener la cantidad total de puntos de control por los cuales tiene que pasar un paquete.
+    */
+    public int obtenerTotalPuntosDeControlAsignados(Paquete paquete){
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT COUNT(*) FROM PaquetePasaPuntoDeControl WHERE CodigoPaquete = '"+paquete.getCodigo()+"';");
+            while(resultado.next()){
+                return resultado.getInt("COUNT(*)");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return 0;
+    }
+    
+     /*
+    Metodo encargado de obtener la cantidad total de horas que un paquete ha estado dentro un punto de control.
+    */
+    public double obtenerTotalHorasEnPuntoDeControl(Paquete paquete){
+        double horasTotales = 0;
+        try {
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT* FROM PaquetePasaPuntoDeControl WHERE CodigoPaquete = '"+paquete.getCodigo()+"';");
+            while(resultado.next()){
+                horasTotales = horasTotales + resultado.getDouble("CantidadHoras"); 
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return horasTotales;
+    }
     
     //-------------------------------------------------------------CLIENTE----------------------------------------------------------------------------------------------------------
  
+    /*
+    Metodo encargado de devolver un listado de clientes.
+    */
+    public List obtenerListadoClientes(String codigoSQL){
+        try {
+            this.conectarDB();
+            listado = new ArrayList<>();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                cliente = new Cliente(resultado.getString("Nombre"), resultado.getString("Apellido"), resultado.getString("Direccion"), resultado.getString("DPI"), resultado.getString("NIT"));
+                listado.add(cliente);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return listado;
+    }
+    
+    /*
+    Metodo encargado de ingresar un nuevo registro en la base de datos correspondiente a un cliente.
+    */
     public String crearNuevoCliente(Cliente cliente){
         try {
             this.conectarDB();
@@ -572,9 +776,12 @@ public class ManejadorDBSM {
         catch (SQLException ex) {
             return ex.toString();
         }
-        return "Cliente " + cliente.getNombre()+ " registrada exitosamente";
+        return "Cliente " + cliente.getNombre()+ " registrado exitosamente";
     }
     
+    /*
+    Metodo encargado de actualizar un registro en la base de datos correspondiente a un cliente.
+    */
     public String modificarCliente(Cliente cliente){
         try {
             this.conectarDB();
@@ -591,6 +798,10 @@ public class ManejadorDBSM {
         return "Cliente " + cliente.getNombre()+ " modificado exitosamente";
     }
     
+    /*
+    Metodo encargado de realizar una consulta en la tabla de clientes. Devuelve true o false dependiendo de si
+    se encontro el cliente inidicado.
+    */
     public boolean buscarClientePorNIT(String NIT){
         try {
             this.conectarDB();
@@ -607,7 +818,11 @@ public class ManejadorDBSM {
         return false;
     }
     
-     public boolean buscarClientePorDPI(String DPI){
+    /*
+    Metodo encargado de realizar una consulta en la tabla de clientes. Devuelve true o false dependiendo de si
+    se encontro el cliente inidicado.
+    */
+    public boolean buscarClientePorDPI(String DPI){
         try {
             this.conectarDB();
             declaracionSegura = conexion.prepareStatement("SELECT COUNT(*) FROM Cliente WHERE  DPI = ?;");
@@ -622,7 +837,9 @@ public class ManejadorDBSM {
         }
         return false;
     }
-    
+    /*
+    Metodo encargado de realizar una consulta en la tabla de clientes.  Devuelve el cliente encontrado.
+    */
     public Cliente obtenerClientePorNIT(String NIT){
         try {
             this.conectarDB();
@@ -638,7 +855,9 @@ public class ManejadorDBSM {
         }
         return cliente;
     }
-    
+    /*
+    Metodo encargado de realizar una consulta en la tabla de clientes.  Devuelve el cliente encontrado.
+    */
     public Cliente obtenerClientePorDPI(String DPI){
         try {
             this.conectarDB();
@@ -656,7 +875,53 @@ public class ManejadorDBSM {
     }
     
     //-------------------------------------------------------------PAQUETE----------------------------------------------------------------------------------------------------------
-     public String crearNuevoPaquete(Paquete paquete){
+    
+    /*
+    Metodo encargado de devolver un listado de paquetes.
+    */
+    public List obtenerListadoPaquetesEnPuntoDeControl(String codigoSQL){
+        try {
+            this.conectarDB();
+            listado = new ArrayList<>();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                paquetePasaPuntoDeControl = new EntidadAsociativaPaquetePasaPuntoDeControl(resultado.getString("CodigoPaquete"), resultado.getString("CodigoRuta"), resultado.getInt("CodigoPuntoDeControl"),
+                                                resultado.getDouble("TarifaOperacion"), resultado.getDouble("CantidadHoras"), resultado.getDouble("Costo"), resultado.getBoolean("Finalizado"),
+                                                resultado.getBoolean("EnTurno"), resultado.getTimestamp("FechaIngreso"), resultado.getBoolean("Prioridad"));
+                listado.add(paquetePasaPuntoDeControl);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion con la base de datos");
+        }
+        return listado;
+    }
+    
+    /*
+    Metodo encargado de devolver un listado de paquetes que ya se encuentran en su destino.
+    */
+    public List obtenerListadoPaquetes(String codigoSQL){
+        try {
+            listado = new ArrayList<>();
+            this.conectarDB();
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery(codigoSQL);
+            while(resultado.next()){
+                paquete = new Paquete(resultado.getString("Codigo"), resultado.getDouble("Peso"), true, resultado.getString("Destino"), 0, 0, 0, resultado.getDouble("PrecioTotal"), resultado.getString("DPICliente"), null);
+                listado.add(paquete);
+            }
+    
+        }    
+        catch (SQLException ex) {
+            System.out.println(ex); 
+        }
+        return listado;
+    }
+    
+    /*
+    Metodo encargado de crear un nuevo registro en la base de datos correspondiente a un nuevo paquete
+    */
+    public String crearNuevoPaquete(Paquete paquete){
         try {
             this.conectarDB();
             declaracionSegura = conexion.prepareStatement("INSERT INTO Paquete (Codigo, Peso, Prioridad, Destino, PrecioDestino, PrecioPriorizacion, PrecioLibra, PrecioTotal, DPICliente, FechaIngreso) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
@@ -677,9 +942,13 @@ public class ManejadorDBSM {
         }
         return "Paquete " + paquete.getCodigo()+ " ingresado exitosamente";
     }
-     
-     //-------------------------------------------------------------BODEGA---------------------------------------------------------------------------------------------------------
-      public void guardarPaqueteEnBodega(Paquete paquete){
+    
+    //-------------------------------------------------------------BODEGA---------------------------------------------------------------------------------------------------------
+    
+    /*
+    Metodo encargado de crear un nuevo registro en la base de datos, correspondiente a un paquete dentro de la bodega.
+    */
+    public void guardarPaqueteEnBodega(Paquete paquete){
         try {
             this.conectarDB();
             declaracionSegura = conexion.prepareStatement("INSERT INTO Bodega (CodigoPaquete, Prioridad, Destino, FechaIngreso) VALUES(?, ?, ?, ?);");
@@ -693,6 +962,114 @@ public class ManejadorDBSM {
             System.out.println(ex); 
         }
     }
+    
+    /*
+    Metodo encargado de registrar los datos de un paquete que ha sido procesado en un punto de control.
+    */
+    public String actualizarPuntoDeControlPaquete(EntidadAsociativaPaquetePasaPuntoDeControl paquetePasaPuntoDeControl){
+       this.conectarDB();
+        try {
+            declaracion = conexion.createStatement();
+            declaracion.executeUpdate("UPDATE PaquetePasaPuntoDeControl SET CantidadHoras = '"+paquetePasaPuntoDeControl.getCantidadHoras()+"', Costo = '"+paquetePasaPuntoDeControl.getCosto()+"', "
+                                    + "Finalizado = "+paquetePasaPuntoDeControl.isFinalizado()+", EnTurno = "+paquetePasaPuntoDeControl.isEnTurno()+", FechaIngreso = '"+paquetePasaPuntoDeControl.getFechaIngreso()+"'"
+                                    + " WHERE CodigoPaquete = '"+paquetePasaPuntoDeControl.getCodigoPaquete()+"'  && CodigoPuntoDeControl = '"+paquetePasaPuntoDeControl.getCodigoPuntoDeControl()+"' "
+                                    + "&& CodigoRuta = '"+paquetePasaPuntoDeControl.getCodigoRuta()+"';");
+        } catch (SQLException ex) {
+            return ex.toString();
+        }
+       return "Paquete "+paquetePasaPuntoDeControl.getCodigoPaquete()+" procesado exitosamente";
+   } 
+   
+    /*
+    Metodo encargado de registrar los datos de un paquete que ha llegado a su destino dentro de un ruta.
+    */
+    public void modificarPaqueteAsignadoRuta(EntidadAsociativaPaquetePasaPuntoDeControl paquetePasaPuntoDeControl, int tipo){
+       this.conectarDB();
+        try {
+            if(tipo == 0){
+                declaracion = conexion.createStatement();
+                declaracion.executeUpdate("UPDATE PaqueteAsignadoRuta SET EnDestino = TRUE WHERE CodigoPaquete = '"+paquetePasaPuntoDeControl.getCodigoPaquete()+"';");
+            }
+            else{
+                declaracion = conexion.createStatement();
+                resultado = declaracion.executeQuery("SELECT* FROM PaqueteAsignadoRuta WHERE CodigoPaquete = '"+paquetePasaPuntoDeControl.getCodigoPaquete()+"';");
+                while(resultado.next()){
+                    numeroPuntoDeControlActual = resultado.getInt("PuntoDeControlActual");
+                    numeroPuntoDeControlActual++;
+                }
+                declaracion = conexion.createStatement();
+                declaracion.executeUpdate("UPDATE PaqueteAsignadoRuta SET PuntoDeControlActual = '"+numeroPuntoDeControlActual+"' WHERE CodigoPaquete = '"+paquetePasaPuntoDeControl.getCodigoPaquete()+"';");
+            }
+            
+            
+        } catch (SQLException ex) {
+            System.out.println("Error de conexion");
+        }
+    }
+    
+    /*
+    Metodo encargado de obtener el siguiente punto de control al cual debe ir un paquete que va a ser procesado.
+    */
+    public EntidadAsociativaPaquetePasaPuntoDeControl obtenerPuntoDeControlPaqueteSiguiente(EntidadAsociativaPaquetePasaPuntoDeControl paquetePasaPuntoDeControl){
+        this.conectarDB();
+        try {
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT* FROM PaquetePasaPuntoDeControl WHERE CodigoPaquete = '"+paquetePasaPuntoDeControl.getCodigoPaquete()+"' && Finalizado = FALSE ORDER BY CodigoPuntoDeControl LIMIT 1;");
+            while(resultado.next()){
+                this.paquetePasaPuntoDeControl = new EntidadAsociativaPaquetePasaPuntoDeControl(resultado.getString("CodigoPaquete"), resultado.getString("CodigoRuta"), resultado.getInt("CodigoPuntoDeControl"),
+                                                                                                resultado.getDouble("TarifaOperacion"), resultado.getDouble("CantidadHoras"), resultado.getDouble("Costo"), 
+                                                                                                resultado.getBoolean("Finalizado"), resultado.getBoolean("EnTurno"), resultado.getTimestamp("FechaIngreso"), resultado.getBoolean("Prioridad"));
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+       return this.paquetePasaPuntoDeControl;
+    } 
+   
+    /*
+    Metodo encargado de actualizar la base de datos correspondiente a un paquete que ha sido entregado.
+    */
+    public String entregarPaquete(Paquete paquete){
+        try {
+            declaracion = conexion.createStatement();
+            declaracion.executeUpdate("UPDATE PaqueteAsignadoRuta SET Entregado = TRUE  WHERE CodigoPaquete = '"+paquete.getCodigo()+"';");
+        } catch (SQLException ex) {
+           return ex.toString();
+        }
+       return "Entrega de paquete "+paquete.getCodigo()+" registrada exitosamente";
+    }
+    
+    /*
+    Metodo encargado de verifiar si la cola del punto de control se encuentra llena o aun tiene capacidad para otros paquetes.
+    */
+    public boolean verificarColaPuntoDeControlSiguiente(EntidadAsociativaPaquetePasaPuntoDeControl paquetePasaPuntoDeControl){
+        try {
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT* FROM PaquetePasaPuntoDeControl WHERE CodigoPaquete = '"+paquetePasaPuntoDeControl.getCodigoPaquete()+"' && Finalizado = FALSE && EnTurno = FALSE ORDER BY CodigoPuntoDeControl LIMIT 1;");
+            while(resultado.next()){
+                codigoPuntoDeControl = resultado.getInt("CodigoPuntoDeControl");
+                System.out.println(codigoPuntoDeControl);
+            }
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT COUNT(*) FROM PaquetePasaPuntoDeControl WHERE CodigoPuntoDeControl = '"+codigoPuntoDeControl+"' && EnTurno = TRUE;");
+            while(resultado.next()){
+                cantidadPaquetesColaActual = resultado.getInt("COUNT(*)");
+                System.out.println(cantidadPaquetesColaActual);
+            }
+            declaracion = conexion.createStatement();
+            resultado = declaracion.executeQuery("SELECT* FROM PuntoDeControl WHERE CodigoRuta = '"+paquetePasaPuntoDeControl.getCodigoRuta()+"' && Codigo = '"+codigoPuntoDeControl+"';");
+            while(resultado.next()){
+                cantidadPaquetesCola = resultado.getInt("CantidadPaquetesCola");
+                System.out.println(cantidadPaquetesCola);
+            }
+            return cantidadPaquetesCola > cantidadPaquetesColaActual;        
+        } 
+        catch (SQLException ex) {
+            System.out.println(ex);
+            return false;
+        }
+    }
+        
 }
 
 

@@ -25,8 +25,6 @@ public class PuntoDeControl {
         this.tarifaOperacionPropia = tarifaOperacionPropia;
     }
 
-    
-
     public int getCodigo() {
         return codigo;
     }

@@ -54,7 +54,12 @@ public class PanelCliente extends javax.swing.JPanel {
     }
     
     public void obtenerClientes(int tipo){
-        listadoClientes = manejadorDB.obtenerListadoClientes("SELECT* FROM Cliente ORDER BY DPI;",tipo);
+        if(tipo == 0){
+            listadoClientes = manejadorDB.obtenerListadoClientes("SELECT* FROM Cliente ORDER BY DPI LIMIT 45;");
+        }
+        else{
+            listadoClientes = manejadorDB.obtenerListadoClientes("SELECT* FROM Cliente ORDER BY DPI;");
+        }
         this.llenarTabla(listadoClientes);
     }
     //-------------------------------------------------------------------------------
@@ -125,7 +130,7 @@ public class PanelCliente extends javax.swing.JPanel {
             listadoClientes = this.manejadorBusqueda.busquedaClientePorApellidos(patronBusqueda);
         }
         if(radioBotonCiudad.isSelected()){
-            listadoClientes = this.manejadorBusqueda.busquedaClientePorCiudad(patronBusqueda);  
+            listadoClientes = this.manejadorBusqueda.busquedaClientePorDireccion(patronBusqueda);  
         }
         if(radioBotonNIT.isSelected()){
             listadoClientes = this.manejadorBusqueda.busquedaClientePorNIT(patronBusqueda);

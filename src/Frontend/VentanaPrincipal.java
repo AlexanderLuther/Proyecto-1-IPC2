@@ -7,6 +7,7 @@ import Backend.ManejadorDBSM;
 import Backend.ManejadorHilos;
 import Backend.Tarifa;
 import Backend.Usuario;
+import Frontend.Operador.PanelOperador;
 /**
  *
  * @author helmuthluther
@@ -48,7 +49,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         this.manejadorHilos = new  ManejadorHilos();
         this.cambiarPanel = new CambiadorPaneles();
         this.panelAdministrador = new PanelAdministrador(this);
-        this.panelOperador = new PanelOperador();
+        this.panelOperador = new PanelOperador(this);
         this.panelRecepcionista = new PanelRecepcionista(this);
         initComponents();
     }
@@ -102,17 +103,22 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         switch (tipoUsuarioActual) {
             case ADMINISTRADOR:
                 panelAdministrador.setManejadorBodega(manejadorBodega);
-                cambiarPanel.cambiarPanel(panelPrincipal, panelAdministrador);
                 panelAdministrador.establecerFondo();
                 panelAdministrador.estableceUsuario(nombreUsuario);
+                cambiarPanel.cambiarPanel(panelPrincipal, panelAdministrador);
+                
             break;
             case RECEPCIONISTA:
                 panelRecepcionista.setManejadorBodega(manejadorBodega);
-                cambiarPanel.cambiarPanel(panelPrincipal, panelRecepcionista);
                 panelRecepcionista.establecerFondo();
                 panelRecepcionista.estableceUsuario(nombreUsuario);
+                cambiarPanel.cambiarPanel(panelPrincipal, panelRecepcionista);
+                
             break;
             default:
+                panelOperador.setManejadorBodega(manejadorBodega);
+                panelOperador.establecerFondo();
+                panelOperador.estableceUsuario(nombreUsuario);
                 cambiarPanel.cambiarPanel(panelPrincipal, panelOperador);
             break;
         }
